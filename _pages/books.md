@@ -1,13 +1,19 @@
 ---
-layout: book-shelf
+layout: page
 title: bookshelf
 permalink: /books/
-nav: false
-collection: books
+nav: true
+nav_order: 4
 ---
 
-> What an astonishing thing a book is. It's a flat object made from a tree with flexible parts on which are imprinted lots of funny dark squiggles. But one glance at it and you're inside the mind of another person, maybe somebody dead for thousands of years. Across the millennia, an author is speaking clearly and silently inside your head, directly to you. Writing is perhaps the greatest of human inventions, binding together people who never knew each other, citizens of distant epochs. Books break the shackles of time. A book is proof that humans are capable of working magic.
->
-> -- Carl Sagan, Cosmos, Part 11: The Persistence of Memory (1980)
-
-## Books that I am reading, have read, or will read
+<section class="simple-page-section">
+  <p class="highlight-label">Books</p>
+  <ul class="books-simple-list">
+    <li><strong>The Almanack of Naval Ravikant</strong> — Eric Jorgenson</li>
+    <li><strong>Sapiens: A Brief History of Humankind</strong> — Yuval Noah Harari</li>
+    <li><strong>A Brief History of Time</strong> — Stephen Hawking</li>
+    <li><strong>Principles of Microeconomics</strong> — N. Gregory Mankiw</li>
+    <li><strong>Principles of Macroeconomics</strong> — N. Gregory Mankiw</li>
+    <li><strong>Poor Charlie's Almanack</strong> — Charles T. Munger</li>
+  </ul>
+</section>

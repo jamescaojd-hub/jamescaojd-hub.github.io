@@ -96,12 +96,17 @@ ul.task-list input[type="checkbox"] {
   margin-bottom: 40px;
 
   .card {
-    background-color: var(--global-card-bg-color);
-    border: 1px solid var(--global-divider-color);
+    background: transparent;
+    border: 0;
+    border-radius: 0;
+    box-shadow: none;
+    padding: 0 !important;
 
     .list-group-item {
-      background-color: inherit;
-      border-color: var(--global-divider-color);
+      padding-left: 0;
+      padding-right: 0;
+      background: transparent;
+      border: 0;
 
       .badge {
         color: var(--global-card-bg-color) !important;
@@ -242,6 +247,215 @@ ul.task-list input[type="checkbox"] {
 @media only screen and (max-width: 400px) {
   .wechat-modal > img {
     width: 100%;
+  }
+}
+
+// Custom homepage sections
+
+.post--home-terminal {
+  article {
+    display: flex;
+    flex-direction: column;
+  }
+}
+
+.home-shell {
+  display: grid;
+  gap: 1.4rem;
+  margin: 1.2rem 0 2rem;
+}
+
+.home-shell--simple {
+  max-width: 860px;
+}
+
+.home-shell__intro {
+  max-width: 760px;
+
+  h1 {
+    margin: 0;
+    font-size: clamp(2.3rem, 5vw, 3.7rem);
+    line-height: 1.06;
+  }
+}
+
+.home-shell__eyebrow {
+  margin-bottom: 0.45rem;
+  color: var(--global-theme-color);
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  font-size: 0.82rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.home-shell__subtitle {
+  margin-top: 0.85rem;
+  margin-bottom: 0;
+  max-width: 650px;
+  color: var(--global-text-color-light);
+  font-size: 1.02rem;
+  line-height: 1.6;
+}
+
+.home-contact-icons {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.9rem;
+
+  a {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 2.8rem;
+    height: 2.8rem;
+    border: 1px solid var(--global-divider-color);
+    border-radius: 999px;
+    color: var(--global-text-color);
+    font-size: 1.15rem;
+    text-decoration: none;
+    transition: color 0.2s ease, border-color 0.2s ease, transform 0.2s ease;
+
+    &:hover {
+      border-color: var(--global-theme-color);
+      color: var(--global-theme-color);
+      transform: translateY(-1px);
+    }
+  }
+}
+
+.home-section,
+.simple-page-section {
+  margin: 1.5rem 0;
+}
+
+.home-map-frame {
+  overflow: hidden;
+  border-radius: 16px;
+
+  iframe {
+    display: block;
+    width: 100%;
+    height: 420px;
+    border: 0;
+  }
+}
+
+.books-simple-list {
+  margin: 0;
+  padding-left: 1.2rem;
+
+  li + li {
+    margin-top: 0.55rem;
+  }
+}
+
+.highlight-grid,
+.custom-section-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 1rem;
+  margin: 1.5rem 0 2rem;
+}
+
+.custom-section-grid.two-up {
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+}
+
+.highlight-card,
+.custom-section-card,
+.timeline-item {
+  h3 {
+    margin-top: 0.15rem;
+    margin-bottom: 0.8rem;
+  }
+
+  p:last-child,
+  ul:last-child {
+    margin-bottom: 0;
+  }
+}
+
+.custom-section-card--wide {
+  margin: 1.5rem 0;
+}
+
+.highlight-label {
+  margin-bottom: 0.45rem;
+  color: var(--global-theme-color);
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  font-size: 0.8rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+.quick-facts {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 1rem;
+  margin: 1.25rem 0 2rem;
+
+  div {
+    padding: 1rem 1.05rem;
+    border-radius: 16px;
+    background: rgba(34, 197, 94, 0.06);
+    border: 1px solid rgba(34, 197, 94, 0.12);
+  }
+
+  span {
+    display: block;
+    margin-bottom: 0.4rem;
+    color: var(--global-text-color-light);
+    font-size: 0.82rem;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+  }
+
+  strong {
+    line-height: 1.5;
+  }
+}
+
+.timeline-list {
+  display: grid;
+  gap: 1rem;
+  margin-bottom: 2rem;
+}
+
+.timeline-item__meta {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 0.5rem;
+  color: var(--global-text-color-light);
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  font-size: 0.88rem;
+}
+
+@keyframes terminal-blink {
+  0%, 49% {
+    opacity: 1;
+  }
+
+  50%, 100% {
+    opacity: 0;
+  }
+}
+
+@media (max-width: 768px) {
+  .home-shell__intro h1 {
+    font-size: clamp(2rem, 9vw, 2.8rem);
+  }
+}
+
+@media (max-width: 576px) {
+  .timeline-item__meta {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .terminal-hero--embedded .terminal-screen {
+    padding: 1rem;
   }
 }
 
