@@ -59,9 +59,10 @@ layout: default
       {% if render_rendercv and site.data.cv and site.data.cv.cv %}
         {% comment %} RenderCV format {% endcomment %}
         {% assign cv = site.data.cv.cv %}
+        {% assign linkedin_profile = cv.social_networks | where: 'network', 'LinkedIn' | first %}
 
         <!-- Header/Contact Information -->
-        {% if cv.name or cv.label or cv.location or cv.email or cv.phone or cv.website %}
+        {% if cv.name or cv.location or cv.email or cv.phone or cv.website or linkedin_profile %}
           <div class="card mt-3 p-3">
             <h3 class="card-title font-weight-medium">Contact Information</h3>
             <table class="table table-cv table-sm table-borderless">
@@ -69,12 +70,6 @@ layout: default
                 <tr>
                   <td class="p-1 pr-2 font-weight-bold"><b>Name</b></td>
                   <td class="p-1 pl-2 font-weight-light">{{ cv.name }}</td>
-                </tr>
-              {% endif %}
-              {% if cv.label %}
-                <tr>
-                  <td class="p-1 pr-2 font-weight-bold"><b>Professional Title</b></td>
-                  <td class="p-1 pl-2 font-weight-light">{{ cv.label }}</td>
                 </tr>
               {% endif %}
               {% if cv.email %}
@@ -87,6 +82,14 @@ layout: default
                 <tr>
                   <td class="p-1 pr-2 font-weight-bold"><b>Phone</b></td>
                   <td class="p-1 pl-2 font-weight-light">{{ cv.phone }}</td>
+                </tr>
+              {% endif %}
+              {% if linkedin_profile %}
+                <tr>
+                  <td class="p-1 pr-2 font-weight-bold"><b>LinkedIn</b></td>
+                  <td class="p-1 pl-2 font-weight-light">
+                    <a href="https://www.linkedin.com/in/{{ linkedin_profile.username }}" target="_blank">linkedin.com/in/{{ linkedin_profile.username }}</a>
+                  </td>
                 </tr>
               {% endif %}
               {% if cv.address %}
@@ -112,14 +115,6 @@ layout: default
           </div>
         {% endif %}
 
-        <!-- Summary -->
-        {% if cv.summary %}
-          <div class="card mt-3 p-3">
-            <h3 class="card-title font-weight-medium">Professional Summary</h3>
-            <p>{{ cv.summary | markdownify | remove: '<p>' | remove: '</p>' }}</p>
-          </div>
-        {% endif %}
-
         <!-- RenderCV Sections - Merge Experience and Volunteer -->
         {% comment %} First, combine Experience and Volunteer entries {% endcomment %}
         {% assign empty_array = '' | split: ',' %}
@@ -141,59 +136,61 @@ layout: default
         {% for section_pair in cv.sections %}
           {% assign section_title = section_pair[0] %}
           {% assign section_entries = section_pair[1] %}
+          {% assign entries = section_entries %}
+          {% assign render_section = true %}
 
           {% comment %} Skip Experience and Volunteer as we've already processed them combined {% endcomment %}
           {% if section_title == 'Experience' or section_title == 'Volunteer' %}
             {% continue %}
           {% endif %}
 
-          <a class="anchor" id="{{ section_title | slugify }}"></a>
-          <div class="card mt-3 p-3">
-            <h3 class="card-title font-weight-medium">{{ section_title }}</h3>
-            <div>
-              {% if section_title == 'Education' %}
-                {% assign entries = section_entries %}
-                {% include cv/education.liquid %}
-              {% elsif section_title == 'Awards' or section_title == 'Honors and Awards' %}
-                {% assign entries = section_entries %}
-                {% include cv/awards.liquid %}
-              {% elsif section_title == 'Publications' %}
-                {% assign entries = section_entries %}
-                {% include cv/publications.liquid %}
-              {% elsif section_title == 'Skills' %}
-                {% assign entries = section_entries %}
-                {% include cv/skills.liquid %}
-              {% elsif section_title == 'Languages' %}
-                {% assign entries = section_entries %}
-                {% include cv/languages.liquid %}
-              {% elsif section_title == 'Interests' or section_title == 'Academic Interests' %}
-                {% assign entries = section_entries %}
-                {% include cv/interests.liquid %}
-              {% elsif section_title == 'Certificates' %}
-                {% assign entries = section_entries %}
-                {% include cv/certificates.liquid %}
-              {% elsif section_title == 'Projects' or section_title == 'Open Source Projects' %}
-                {% assign entries = section_entries %}
-                {% include cv/projects.liquid %}
-              {% elsif section_title == 'References' %}
-                {% assign entries = section_entries %}
-                {% include cv/references.liquid %}
-              {% else %}
-                <!-- Generic section -->
-                {% for entry in section_entries %}
-                  {% if entry.bullet %}
-                    <ul class="card-text font-weight-light list-group list-group-flush">
-                      <li class="list-group-item">{{ entry.bullet | markdownify | remove: '<p>' | remove: '</p>' }}</li>
-                    </ul>
-                  {% elsif entry.label %}
-                    <div class="card-text font-weight-light">
-                      <strong>{{ entry.label }}:</strong> {{ entry.details }}
-                    </div>
-                  {% endif %}
-                {% endfor %}
-              {% endif %}
+          {% if section_title == 'Skills' %}
+            {% assign render_section = false %}
+          {% elsif section_title == 'Awards' or section_title == 'Honors and Awards' %}
+            {% assign entries = section_entries | where_exp: 'entry', "entry.title != 'Challenge Cup Competition of Science and Technology'" %}
+            {% if entries.size == 0 %}
+              {% assign render_section = false %}
+            {% endif %}
+          {% endif %}
+
+          {% if render_section %}
+            <a class="anchor" id="{{ section_title | slugify }}"></a>
+            <div class="card mt-3 p-3">
+              <h3 class="card-title font-weight-medium">{{ section_title }}</h3>
+              <div>
+                {% if section_title == 'Education' %}
+                  {% include cv/education.liquid %}
+                {% elsif section_title == 'Awards' or section_title == 'Honors and Awards' %}
+                  {% include cv/awards.liquid %}
+                {% elsif section_title == 'Publications' %}
+                  {% include cv/publications.liquid %}
+                {% elsif section_title == 'Languages' %}
+                  {% include cv/languages.liquid %}
+                {% elsif section_title == 'Interests' or section_title == 'Academic Interests' %}
+                  {% include cv/interests.liquid %}
+                {% elsif section_title == 'Certificates' %}
+                  {% include cv/certificates.liquid %}
+                {% elsif section_title == 'Projects' or section_title == 'Open Source Projects' %}
+                  {% include cv/projects.liquid %}
+                {% elsif section_title == 'References' %}
+                  {% include cv/references.liquid %}
+                {% else %}
+                  <!-- Generic section -->
+                  {% for entry in entries %}
+                    {% if entry.bullet %}
+                      <ul class="card-text font-weight-light list-group list-group-flush">
+                        <li class="list-group-item">{{ entry.bullet | markdownify | remove: '<p>' | remove: '</p>' }}</li>
+                      </ul>
+                    {% elsif entry.label %}
+                      <div class="card-text font-weight-light">
+                        <strong>{{ entry.label }}:</strong> {{ entry.details }}
+                      </div>
+                    {% endif %}
+                  {% endfor %}
+                {% endif %}
+              </div>
             </div>
-          </div>
+          {% endif %}
         {% endfor %}
 
       {% elsif render_jsonresume and site.data.resume %}

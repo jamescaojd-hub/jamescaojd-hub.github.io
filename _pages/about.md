@@ -23,7 +23,7 @@ latest_posts:
 
 <section class="home-shell home-shell--simple">
   <div class="home-shell__intro">
-    <p class="home-shell__subtitle">Machine Learning Engineer at TikTok, working on large-scale core push systems. Previously worked on generative recommendation modeling, contributing to products that reached 320,000 U.S. DAU and 400 million USD in GMV. M.S. in Electrical and Computer Engineering from Carnegie Mellon University; B.Eng. in Computer Science from Sun Yat-sen University.</p>
+    <p class="home-shell__subtitle">Machine Learning Engineer focused on large-scale recommendation systems and multimodal learning. Outside of work, I keep a steady fitness routine and do 30 minutes of cardio every day—usually running, swimming, or hiking. In my spare time, I like experimenting with agent systems and have recently been exploring on-device agents. If you'd like to talk about recommender systems, multimodal ML, agent products, or just connect for a coffee chat, feel free to reach out.</p>
   </div>
 
   <section class="home-section">
