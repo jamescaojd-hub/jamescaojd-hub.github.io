@@ -11,14 +11,14 @@ ninja.data = [{
     },
   },{id: "nav-resume",
           title: "resume",
-          description: "Resume download and a structured overview of education, experience, research, and skills.",
+          description: "",
           section: "Navigation",
           handler: () => {
             window.location.href = "/resume/";
           },
         },{id: "nav-blog",
           title: "blog",
-          description: "Blog posts will be added here later.",
+          description: "",
           section: "Navigation",
           handler: () => {
             window.location.href = "/blog/";
