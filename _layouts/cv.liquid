@@ -14,29 +14,6 @@ layout: default
 {% endcomment %}
 
 <div class="post">
-  <header class="post-header">
-    <h1 class="post-title">
-      {{ page.title }}
-      {% if page.cv_pdf %}
-        <a
-          {% if page.cv_pdf contains '://' %}
-            href="{{ page.cv_pdf }}"
-          {% else %}
-            href="{{ page.cv_pdf | relative_url }}"
-          {% endif %}
-          target="_blank"
-          rel="noopener noreferrer"
-          class="float-right"
-        >
-          <i class="fa-solid fa-file-pdf"></i>
-        </a>
-      {% endif %}
-    </h1>
-    {% if page.description %}
-      <p class="post-description">{{ page.description }}</p>
-    {% endif %}
-  </header>
-
   <article>
     <div class="cv">
       {% comment %} Determine which CV format to render {% endcomment %}
@@ -63,8 +40,25 @@ layout: default
 
         <!-- Header/Contact Information -->
         {% if cv.name or cv.location or cv.email or cv.phone or cv.website or linkedin_profile %}
-          <div class="card mt-3 p-3">
-            <h3 class="card-title font-weight-medium">Contact Information</h3>
+          <div class="card mt-1 p-3">
+            <div class="d-flex justify-content-between align-items-center mb-2">
+              <h3 class="card-title font-weight-medium mb-0">Contact Information</h3>
+              {% if page.cv_pdf %}
+                <a
+                  class="btn btn-sm btn-outline-primary"
+                  {% if page.cv_pdf contains '://' %}
+                    href="{{ page.cv_pdf }}"
+                  {% else %}
+                    href="{{ page.cv_pdf | relative_url }}"
+                  {% endif %}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  <i class="fa-solid fa-file-pdf mr-1"></i>
+                  Download Resume
+                </a>
+              {% endif %}
+            </div>
             <table class="table table-cv table-sm table-borderless">
               {% if cv.name %}
                 <tr>
@@ -139,14 +133,12 @@ layout: default
           {% assign entries = section_entries %}
           {% assign render_section = true %}
 
-          {% comment %} Skip Experience and Volunteer as we've already processed them combined {% endcomment %}
-          {% if section_title == 'Experience' or section_title == 'Volunteer' %}
+          {% comment %} Skip Experience, Volunteer, and Skills in the section loop {% endcomment %}
+          {% if section_title == 'Experience' or section_title == 'Volunteer' or section_title == 'Skills' %}
             {% continue %}
           {% endif %}
 
-          {% if section_title == 'Skills' %}
-            {% assign render_section = false %}
-          {% elsif section_title == 'Awards' or section_title == 'Honors and Awards' %}
+          {% if section_title == 'Awards' or section_title == 'Honors and Awards' %}
             {% assign entries = section_entries | where_exp: 'entry', "entry.title != 'Challenge Cup Competition of Science and Technology'" %}
             {% if entries.size == 0 %}
               {% assign render_section = false %}
@@ -162,7 +154,7 @@ layout: default
                   {% include cv/education.liquid %}
                 {% elsif section_title == 'Awards' or section_title == 'Honors and Awards' %}
                   {% include cv/awards.liquid %}
-                {% elsif section_title == 'Publications' %}
+                {% elsif section_title == 'Publications' or section_title == 'Research' %}
                   {% include cv/publications.liquid %}
                 {% elsif section_title == 'Languages' %}
                   {% include cv/languages.liquid %}

@@ -33,6 +33,10 @@
               <h6 class="title font-weight-bold ml-1 ml-md-4">{{ entry.title }}</h6>
             {% endif %}
 
+            {% if entry.role %}
+              <h6 class="ml-1 ml-md-4" style="font-size: 0.95rem">{{ entry.role }}</h6>
+            {% endif %}
+
             {% if entry.publisher %}
               <h6 class="ml-1 ml-md-4" style="font-size: 0.95rem">
                 <em>{{ entry.publisher }}</em>
@@ -41,6 +45,14 @@
 
             {% if entry.summary %}
               <p class="ml-1 ml-md-4">{{ entry.summary | markdownify | remove: '<p>' | remove: '</p>' }}</p>
+            {% elsif entry.highlights %}
+              <ul class="items ml-1 ml-md-4">
+                {% for item in entry.highlights %}
+                  <li>
+                    <span class="item">{{ item | markdownify | remove: '<p>' | remove: '</p>' }}</span>
+                  </li>
+                {% endfor %}
+              </ul>
             {% endif %}
           </div>
         {% else %}
@@ -53,6 +65,10 @@
               <h6 class="title font-weight-bold ml-1 ml-md-4">{{ entry.title }}</h6>
             {% endif %}
 
+            {% if entry.role %}
+              <h6 class="ml-1 ml-md-4" style="font-size: 0.95rem">{{ entry.role }}</h6>
+            {% endif %}
+
             {% if entry.publisher %}
               <h6 class="ml-1 ml-md-4" style="font-size: 0.95rem">
                 <em>{{ entry.publisher }}</em>
@@ -61,6 +77,14 @@
 
             {% if entry.summary %}
               <p class="ml-1 ml-md-4">{{ entry.summary | markdownify | remove: '<p>' | remove: '</p>' }}</p>
+            {% elsif entry.highlights %}
+              <ul class="items ml-1 ml-md-4">
+                {% for item in entry.highlights %}
+                  <li>
+                    <span class="item">{{ item | markdownify | remove: '<p>' | remove: '</p>' }}</span>
+                  </li>
+                {% endfor %}
+              </ul>
             {% endif %}
           </div>
         {% endif %}

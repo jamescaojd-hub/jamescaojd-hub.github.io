@@ -23,6 +23,7 @@ latest_posts:
 
 <section class="home-shell home-shell--simple">
   <div class="home-shell__intro">
+    <p class="highlight-label">About me</p>
     <p class="home-shell__subtitle">Machine Learning Engineer focused on large-scale recommendation systems and multimodal learning. Outside of work, I keep a steady fitness routine and do 30 minutes of cardio every day—usually running, swimming, or hiking. In my spare time, I like experimenting with agent systems and have recently been exploring on-device agents. If you'd like to talk about recommender systems, multimodal ML, agent products, or just connect for a coffee chat, feel free to reach out.</p>
   </div>
 

@@ -3,7 +3,8 @@ cv:
   label: Machine Learning Engineer
   email: jamescaojd@gmail.com
   phone: (+1) 412-606-3179
-  location: San Jose, California
+  location: San Jose, USA
+  website: https://jamescaojd-hub.github.io
   image: ""
   summary: Machine Learning Engineer focused on ranking, recommendation, and applied AI systems, with experience connecting model design, production infrastructure, and measurable product impact.
 
@@ -38,11 +39,10 @@ cv:
         start_date: 2025-01
         end_date: Present
         highlights:
-          - Received Exceeds Expectations performance recognition and fast promotion.
-          - Led migration of core push systems into a unified C++ scheduling framework, contributing to 320,000 DAU.
-          - Owned the end-to-end push modeling pipeline, including feature engineering, sample construction, model design, and online integration.
-          - Upgraded ranking from a single-target CTR setup to multi-task learning with richer post-click signals.
-          - Integrated commerce interest candidates into real-time notification flows, contributing to 400M USD GMV.
+          - Led migration of core push systems to a unified C++ scheduling framework, decoupling business logic from global decision-making and driving meaningful user growth.
+          - Owned end-to-end push modeling pipeline, including feature engineering, sample/label construction, model design, and online integration with ranking and frequency control.
+          - Built an end-to-end generative recommendation pipeline and evaluation benchmark to improve cold-start efficiency, measure generation diversity, better infer user interests, and drive meaningful business impact.
+          - Leveraged LLMs and VLMs to construct semantic IDs, optimize vLLM-based inference, and introduce cross-domain and cross-modal modeling for generating user-interest candidate categories.
 
       - company: Amazon
         position: Software Development Engineer Intern
@@ -50,8 +50,7 @@ cv:
         start_date: 2024-05
         end_date: 2024-08
         highlights:
-          - Built internal full-stack tools with React, Java, and TypeScript.
-          - Improved service accessibility and operational efficiency for internal teams.
+          - Built internal full-stack tools with React, Java, and TypeScript, improving service accessibility and operational efficiency.
 
       - company: ZMO.AI
         position: Machine Learning Engineer Intern
@@ -59,7 +58,7 @@ cv:
         start_date: 2023-03
         end_date: 2023-05
         highlights:
-          - Developed an AI image editing pipeline integrating ChatGPT, SAM, GroundingDINO, and Stable Diffusion.
+          - Developed an AI image editing pipeline in Python integrating ChatGPT, SAM, GroundingDINO, and Stable Diffusion.
           - Applied pruning to BLIP-2 and CLIP, reducing memory usage by 30% and runtime by 40%.
 
       - company: Huawei Technologies
@@ -70,34 +69,24 @@ cv:
         highlights:
           - Refactored a data center query system in C++, reducing average query latency by 70%.
 
-    Awards:
-      - title: Challenge Cup Competition of Science and Technology
-        authors:
-          - National First Prize
-        date: 2022-05
-        awarder: Ranked 130 / 300,000
-        summary: Project focused on object detection for autonomous robots using black-and-white imagery.
-
-    Publications:
+    Research:
       - title: Weakly supervised prompt learning for low-resource medical image classification
-        authors:
-          - Jindong Cao
-        publisher: Pattern Recognition (SCI Q1)
+        role: Co-author
+        publisher: Pattern Recognition
         releaseDate: 2024-01
-        summary: Led experiment design and execution, contributed to manuscript writing, and improved zero-shot and few-shot performance with additional prompt-embedding structures.
+        highlights:
+          - Leveraged transferable representations from large-scale pre-trained vision-language models to address low-resource medical image classification for clinical decision support.
+          - Improved zero-shot and few-shot classification performance via additional prompt-embedding structures.
 
     Skills:
-      - name: Languages
-        level: Strong
+      - name: Skills
         icon: fa-solid fa-code
-        keywords: "Python, C++, SQL"
-
-      - name: ML Stack
-        level: Strong
-        icon: fa-solid fa-brain
-        keywords: "PyTorch, TensorFlow, Deep Learning, Machine Learning"
-
-      - name: Domains
-        level: Strong
-        icon: fa-solid fa-server
-        keywords: "Recommendation Systems, Ranking, Feature Engineering, Online Inference"
+        keywords:
+          - Python
+          - C++
+          - SQL
+          - PyTorch
+          - TensorFlow
+          - Deep Learning
+          - Machine Learning
+          - Recommendation System

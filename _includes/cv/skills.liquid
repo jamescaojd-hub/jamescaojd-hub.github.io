@@ -8,11 +8,8 @@
       {% if entry.icon %}
         <i class="{{ entry.icon }}"></i>
       {% endif %}
-      <strong>
-        {{- entry.name -}}
-        {%- if entry.level %} ({{ entry.level }}){% endif %}:</strong
-      >
-      {% if entry.keywords %}
+      {% assign plain_skills_row = entry.name == 'Skills' and entry.level == nil %}
+      {% if plain_skills_row %}
         {% for keyword in entry.keywords %}
           {% if forloop.last %}
             {{ keyword }}
@@ -20,6 +17,20 @@
             {{ keyword }},
           {% endif %}
         {% endfor %}
+      {% else %}
+        <strong>
+          {{- entry.name -}}
+          {%- if entry.level %} ({{ entry.level }}){% endif %}:</strong
+        >
+        {% if entry.keywords %}
+          {% for keyword in entry.keywords %}
+            {% if forloop.last %}
+              {{ keyword }}
+            {% else %}
+              {{ keyword }},
+            {% endif %}
+          {% endfor %}
+        {% endif %}
       {% endif %}
     </div>
   {% endfor %}

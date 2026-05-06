@@ -7,7 +7,6 @@ nav_order: 4
 ---
 
 <section class="simple-page-section">
-  <p class="highlight-label">Books</p>
   <ul class="books-simple-list">
     <li><strong>The Almanack of Naval Ravikant</strong> — Eric Jorgenson</li>
     <li><strong>Sapiens: A Brief History of Humankind</strong> — Yuval Noah Harari</li>
