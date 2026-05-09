@@ -20,27 +20,27 @@ _styles: |
   <ul class="books-simple-list">
     <li>
       <strong>The Almanack of Naval Ravikant</strong> — Eric Jorgenson
-      <span class="books-review">A compact book on judgment, leverage, and long-term thinking. I like how practical it is without sounding overly formulaic.</span>
+      <span class="books-review">My biggest takeaway is that doing what you genuinely enjoy is not a luxury but a compounding advantage. Income often looks like specific knowledge multiplied by leverage, so the real game is becoming exceptional at something you love and then scaling it through media, code, people, and capital.</span>
     </li>
     <li>
       <strong>Sapiens: A Brief History of Humankind</strong> — Yuval Noah Harari
-      <span class="books-review">A broad and engaging way to think about how shared beliefs shape societies. It is especially good for zooming out of day-to-day work and looking at human systems from a bigger lens.</span>
+      <span class="books-review">This book made me think more seriously about how large-scale coordination depends on shared stories. Things like money, companies, and institutions feel solid, but they work because enough people agree to believe in them at the same time.</span>
     </li>
     <li>
       <strong>A Brief History of Time</strong> — Stephen Hawking
-      <span class="books-review">A classic introduction to big physics questions written for general readers. Some parts are dense, but it still does a great job making abstract ideas feel approachable.</span>
+      <span class="books-review">What stayed with me is a sense of humility in front of fundamental questions. It also reminded me that difficult ideas usually become clearer if you keep returning to first principles instead of being intimidated by the notation.</span>
     </li>
     <li>
       <strong>Principles of Microeconomics</strong> — N. Gregory Mankiw
-      <span class="books-review">Clear and structured, with a strong focus on incentives and decision-making at the individual level. It helps build intuition for tradeoffs that show up far beyond economics.</span>
+      <span class="books-review">The core insight for me is that incentives explain behavior better than intention. When I look at a system now, I instinctively ask what tradeoff it creates and what behavior it is quietly rewarding.</span>
     </li>
     <li>
       <strong>Principles of Macroeconomics</strong> — N. Gregory Mankiw
-      <span class="books-review">A useful framework for understanding inflation, growth, and policy at the system level. I like it as a foundation for making sense of larger economic cycles.</span>
+      <span class="books-review">This book pushed me to think more in terms of feedback loops and delayed effects. At the macro level, the hardest part is often not the first-order logic, but understanding how one decision propagates through the whole system over time.</span>
     </li>
     <li>
       <strong>Poor Charlie's Almanack</strong> — Charles T. Munger
-      <span class="books-review">Full of sharp thinking about incentives, decision errors, and multidisciplinary reasoning. It is one of those books that keeps rewarding rereads.</span>
+      <span class="books-review">My main takeaway is that avoiding obvious stupidity is often more valuable than chasing cleverness. Munger's emphasis on incentives and multidisciplinary mental models also reinforces the idea that good judgment is built by borrowing the best lenses from many fields.</span>
     </li>
   </ul>
 </section>
