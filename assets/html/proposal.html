@@ -110,10 +110,16 @@
             color: #334155;
         }
 
+        .table-wrap {
+            overflow-x: auto;
+            margin: 2em 0;
+            -webkit-overflow-scrolling: touch;
+        }
+
         table {
             width: 100%;
             border-collapse: collapse;
-            margin: 2em 0;
+            margin: 0;
             font-size: 0.95em;
         }
 
@@ -589,13 +595,13 @@
 <p>如果验证成立，attribution graph 就可以作为定位关键 feature、edge 或 routing mechanism 的工具；如果验证失败，失败本身也有价值，因为它会告诉我们当前方法哪里不够好，比如 fixed-attention graph 是否漏掉了 QK attention routing，或者 graph 是否把 value flow、attention routing 和 activation magnitude 混在了一起。</p>
 <h2>3. 评估设计</h2>
 <h3>3.1 实验设计</h3>
-<details class="figure-details">
+<details class="figure-details" open>
   <summary><em>图 1. 从 attribution graph 到因果干预验证的整体流程。</em></summary>
   <div class="figure-body">
     <p><img src="../img/proposal/att-tracer-arch.png" alt="Attention tracer 架构" /></p>
   </div>
 </details>
-<table>
+<div class="table-wrap"><table>
 <thead>
 <tr>
 <th>组成部分</th>
@@ -624,7 +630,7 @@
 <td>每个 case 内看分数和真实影响是否相关；每类任务内看 gap、median、range 和典型失败 case。</td>
 </tr>
 </tbody>
-</table>
+</table></div>
 <p align="center"><em>表 1. 评估设计：把 attribution graph 的静态重要性分数转化为可干预、可聚合的因果验证流程。</em></p>
 <p>更具体地说，每个 case 固定做三步：</p>
 <ol>
@@ -634,7 +640,7 @@
 </ol>
 <p>这种设计的好处是简单、可复现，而且能直接回答一个核心问题：graph 排名前列的 feature，关掉后是不是真的更有影响。局限也很明确：它只检查单个 feature，不能证明整个 circuit 或 attention routing 都已经被解释清楚。</p>
 <h3>3.2 任务族</h3>
-<table>
+<div class="table-wrap"><table>
 <thead>
 <tr>
 <th>任务族</th>
@@ -664,10 +670,10 @@
 <td>看 graph 在多步关系、空间关系、三段论等任务上是否还可靠。</td>
 </tr>
 </tbody>
-</table>
+</table></div>
 <p align="center"><em>表 2. 任务族：40-case MVP 覆盖 factual recall、copying / induction、simple reasoning 和 complex reasoning 四类行为。</em></p>
 <h3>3.3 评估指标</h3>
-<table>
+<div class="table-wrap"><table>
 <thead>
 <tr>
 <th>指标</th>
@@ -707,11 +713,11 @@
 <td>看 graph 是否比“activation 大就重要”这个简单规则更好。</td>
 </tr>
 </tbody>
-</table>
+</table></div>
 <p align="center"><em>表 3. 评估指标：既看 graph 分数和真实影响是否相关，也看它是否强过简单 baseline。</em></p>
 <h3>3.4 对照方法与判断标准</h3>
 <p>为了避免自说自话，我们把 attribution graph 和三类简单 baseline 放在一起比较：</p>
-<table>
+<div class="table-wrap"><table>
 <thead>
 <tr>
 <th>Baseline</th>
@@ -736,9 +742,9 @@
 <td>检查 attribution score 是否真的有排序意义。</td>
 </tr>
 </tbody>
-</table>
+</table></div>
 <p align="center"><em>表 4. 对照方法：检查 graph 是否真的比随机选择和 activation magnitude 更有用。</em></p>
-<table>
+<div class="table-wrap"><table>
 <thead>
 <tr>
 <th>标签</th>
@@ -763,7 +769,7 @@
 <td>graph 没有把真正重要的 feature 排到前面。</td>
 </tr>
 </tbody>
-</table>
+</table></div>
 <p align="center"><em>表 5. 判断标签：MVP 阶段用来区分支持、边界和失败案例。</em></p>
 <h2>4. MVP 结果：哪里有效，哪里失败</h2>
 <p>我们已经在 <code>circuit-tracer</code> 上跑通第一版 MVP。本轮实验用的是 CPU 环境和小规模配置（<code>batch_size=16</code>，<code>max_feature_nodes=100</code>，<code>top_k=2</code>）。目标不是给出最终结论，而是先确认这套评估流程能跑通，并观察初步趋势。</p>
@@ -771,7 +777,7 @@
 <p>MVP 的核心信号很清楚：在 factual / lexical continuation 任务上，attribution graph 通常能找对重要 feature，而且强过 random 和 activation-magnitude baseline；但在 arithmetic reasoning 上，这种优势最不稳定，这是目前最明确的失败边界。追加的 20-case stress test 进一步细化了这个结论：分布式算术里 <code>arithmetic_fraction_logic</code> 的 top-random gap 为 -0.013，而 attention routing、compositional reasoning 和 negation / constraints 组整体仍有正向 baseline advantage。</p>
 <h3>4.1 定性成功案例：RGB copying graph</h3>
 <p>下面先看一个成功 case。Prompt 是 <code>red blue green. red blue</code>，目标 token 是 <code>green</code>。在这个 copying / induction 例子中，graph 高亮了和 <code>green</code> 输出相关的 embedding 与中高层 feature；后续干预实验也显示，这些 top features 的影响明显大于 random features。</p>
-<table>
+<div class="table-wrap"><table>
 <thead>
 <tr>
 <th>截图</th>
@@ -782,7 +788,7 @@
 <tbody>
 <tr>
 <td>
-  <details class="img-details">
+  <details class="img-details" open>
     <summary><img src="../img/proposal/RGB_final_green.png" alt="RGB final green attribution graph" width="260"></summary>
     <div class="img-full"><img src="../img/proposal/RGB_final_green.png" alt="RGB final green attribution graph" /></div>
   </details>
@@ -792,7 +798,7 @@
 </tr>
 <tr>
 <td>
-  <details class="img-details">
+  <details class="img-details" open>
     <summary><img src="../img/proposal/RGB_L16_1056.png" alt="RGB layer 16 feature 1056" width="260"></summary>
     <div class="img-full"><img src="../img/proposal/RGB_L16_1056.png" alt="RGB layer 16 feature 1056" /></div>
   </details>
@@ -802,7 +808,7 @@
 </tr>
 <tr>
 <td>
-  <details class="img-details">
+  <details class="img-details" open>
     <summary><img src="../img/proposal/RGB_L21_2942.png" alt="RGB layer 21 feature 2942" width="260"></summary>
     <div class="img-full"><img src="../img/proposal/RGB_L21_2942.png" alt="RGB layer 21 feature 2942" /></div>
   </details>
@@ -811,10 +817,10 @@
 <td>该 feature 包含 greater than、lower than、more than 等含义，有明显顺序倾向，和该 case 的顺序推理目标吻合。</td>
 </tr>
 </tbody>
-</table>
+</table></div>
 <p align="center"><em>表 6. `copy_sequence_red_blue` 成功 case 的 attribution graph 截图索引。第一行是全局输出视图，后两行是代表性中间 / 后期 feature 细节。</em></p>
 <h3>4.2 任务级汇总</h3>
-<table>
+<div class="table-wrap"><table>
 <thead>
 <tr>
 <th>任务族</th>
@@ -873,9 +879,9 @@
 <td>新增总类别；包含更强算术、组合、attention routing 和约束/否定 stress cases，整体为正但方差更大。</td>
 </tr>
 </tbody>
-</table>
+</table></div>
 <p align="center"><em>表 7. 任务级汇总：按任务类型展示 correlation 和 top-random gap。</em></p>
-<details class="figure-details">
+<details class="figure-details" open>
   <summary><em>图 2. 五类任务的整体表现：原 40-case 四类任务加上新增 Complex stress test 总类别，包含 Pearson、Top-random gap 和 Top-activation gap。</em></summary>
   <div class="figure-body">
     <iframe class="embed-frame" src="../img/proposal/faithfulness_task_family_dashboard.html" loading="lazy" title="Task-family faithfulness dashboard (interactive)"></iframe>
@@ -883,7 +889,7 @@
   </div>
 </details>
 
-<details class="figure-details">
+<details class="figure-details" open>
   <summary><em>图 3. 不同 feature 组的干预效果：对比 top attribution、activation magnitude、random 与 bottom features；新增 Complex stress test 类别已作为第五组加入。</em></summary>
   <div class="figure-body">
     <p><img src="../img/proposal/feature_group_logit_drop_by_family.png" alt="Feature-group logit drop by task family" /></p>
@@ -891,7 +897,7 @@
 </details>
 <h3>4.3 graph 是否强过 activation magnitude</h3>
 <p>除了 random baseline，我们还加入了 activation magnitude baseline。它的做法很简单：在同一批候选 features 里，直接选原始 activation 最大的那些。这样可以检查一个问题：graph 找到的重要 feature，是真的重要，还是只是因为它们本来激活值就大。</p>
-<table>
+<div class="table-wrap"><table>
 <thead>
 <tr>
 <th>任务族</th>
@@ -938,12 +944,12 @@
 <td>追加 stress cases 作为独立总类别后仍全部为正，但 mixed stress set 的 top-random gap 方差更大。</td>
 </tr>
 </tbody>
-</table>
+</table></div>
 <p align="center"><em>表 8. Top-activation gap：检查 graph 是否比直接选高 activation feature 更好。</em></p>
 <p>这一结果说明：在 factual recall、copying / induction、多数关系类 case 以及新增 Complex stress test 总类别中，graph 不只是选中了“激活大的 feature”，而是确实提供了额外信息。相反，<code>arithmetic_reasoning_remaining</code> 的 Top-activation gap 为 -0.041，<code>arithmetic_reasoning_three</code> 约为 0，说明算术失败不是 random baseline 的偶然现象，而是 graph 排序本身没有稳定超过简单 activation heuristic。</p>
 
 <p>为进一步覆盖比 40-case MVP 更强的组合、attention routing 和约束类任务，本轮参考 <code>attn-tracer/scripts/run_complex_cases.py</code> 完整运行了 20 个 stress cases。运行命令使用 CPU 轻量配置：<code>batch_size=128</code>、<code>max_feature_nodes=50</code>、<code>top_k=2</code>，输出写入 <code>attn-tracer/outputs/complex_20_cases/</code>。在图 2 / 图 3 中，这 20 个 case 已整体合并为一个新的 <code>Complex stress test</code> 类别；下面两张表放在本节中，直接服务于“graph 是否强过 activation magnitude / random baseline”的判断。</p>
-<table>
+<div class="table-wrap"><table>
 <thead><tr><th>Stress family</th><th style="text-align:right"># cases</th><th style="text-align:right">Pearson median</th><th style="text-align:right">Top-random gap range</th><th style="text-align:right">Gap median</th><th style="text-align:right">Top-activation gap median</th><th>主要观察</th></tr></thead>
 <tbody>
 <tr><td>Distributed arithmetic</td><td style="text-align:right">5</td><td style="text-align:right">0.827</td><td style="text-align:right">-0.013–1.258</td><td style="text-align:right">0.347</td><td style="text-align:right">0.396</td><td>整体有正相关，但 <code>arithmetic_fraction_logic</code> 的 top-random gap 为负，说明算术仍是最不稳定边界。</td></tr>
@@ -951,16 +957,16 @@
 <tr><td>Attention routing</td><td style="text-align:right">5</td><td style="text-align:right">0.876</td><td style="text-align:right">0.371–2.991</td><td style="text-align:right">0.493</td><td style="text-align:right">0.440</td><td>long induction、noisy copy、ICL mapping、reverse copy 和 variable binding 均为正 gap，但 <code>reverse_sequence_copy</code> 的 Spearman 只有 0.429，仍需 attention-aware QK attribution。</td></tr>
 <tr><td>Negation / constraints</td><td style="text-align:right">5</td><td style="text-align:right">0.994</td><td style="text-align:right">0.331–1.147</td><td style="text-align:right">0.902</td><td style="text-align:right">0.941</td><td>negation、override、attribute cancellation、role binding、exception handling 均显示 top features 明显强于 baseline。</td></tr>
 </tbody>
-</table>
+</table></div>
 <p align="center"><em>表 9. 追加 20-case stress test：按更复杂任务族聚合 correlation 和 baseline gap。</em></p>
 <p>表 9 展示整体趋势；表 10 只保留两个最典型的 case-level 对照：一个代表 compositional stress success，另一个代表 arithmetic stress boundary。</p>
-<table>
+<div class="table-wrap"><table>
 <thead><tr><th>Stress case</th><th>来源子族</th><th style="text-align:right">Pearson</th><th style="text-align:right">Spearman</th><th style="text-align:right">Top-random gap</th><th style="text-align:right">Top-activation gap</th><th style="min-width:360px">解释</th></tr></thead>
 <tbody>
 <tr><td><code>kinship_three_hop</code></td><td>Compositional reasoning</td><td style="text-align:right">0.999</td><td style="text-align:right">0.943</td><td style="text-align:right">0.899</td><td style="text-align:right">0.826</td><td style="min-width:360px">三跳亲属组合推理；score-effect alignment 很清楚，两个 baseline gap 都较大。</td></tr>
 <tr><td><code>arithmetic_fraction_logic</code></td><td>Distributed arithmetic</td><td style="text-align:right">0.722</td><td style="text-align:right">0.371</td><td style="text-align:right">-0.013</td><td style="text-align:right">0.177</td><td style="min-width:360px">分数/数量组合边界；Pearson 为正但 top-random gap 为负，random baseline 偶然更强。</td></tr>
 </tbody>
-</table>
+</table></div>
 <p align="center"><em>表 10. 代表性 complex stress cases：一个成功样例和一个边界样例。</em></p>
 <p>完整 20-case stress-test 的 case-level 结果见附录 B。整体上，这 20 个额外 case 支持“graph 排名通常有因果预测力”的主结论，但也强化了两个边界：一是算术/数量组合仍不稳定，二是 attention-heavy 任务即便 node-level gap 为正，也不能证明 graph 已解释 attention routing 的形成。</p>
 <h3>4.4 成功与失败的可视化对照</h3>
@@ -1041,7 +1047,7 @@
 </ul>
 <h2>6. 当前局限与改进方案</h2>
 <p>当前 MVP 已经证明评测流程可行，但它还只是第一版小规模实验。主要限制和后续处理方式如下：</p>
-<table>
+<div class="table-wrap"><table>
 <thead>
 <tr>
 <th>威胁</th>
@@ -1081,10 +1087,10 @@
 <td>跨模型、跨 feature dictionary 复现实验，区分模型特定边界和 tracing 方法边界。</td>
 </tr>
 </tbody>
-</table>
+</table></div>
 <p align="center"><em>表 11. 当前局限与改进方案。</em></p>
 <h2>7. 下一步计划</h2>
-<table>
+<div class="table-wrap"><table>
 <thead>
 <tr>
 <th>阶段</th>
@@ -1124,7 +1130,7 @@
 <td>判断失败边界来自模型、feature space，还是 tracing 方法本身。</td>
 </tr>
 </tbody>
-</table>
+</table></div>
 <p align="center"><em>表 12. 后续路线图。</em></p>
 <h2>8. 预期贡献</h2>
 <p>本项目的贡献可以概括为三点：</p>
@@ -1135,7 +1141,7 @@
 </ol>
 <h2>9. 相关工作</h2>
 <p>本项目建立在 circuit tracing 和 sparse feature circuits 的基础上，但关注点不是“怎么画出 attribution graph”，而是“这张 graph 说的重要 feature，实验上是否真的重要”。也就是说，一个 graph 不仅要能展示 computation，还要能预测哪些 features 真正控制目标输出。</p>
-<table>
+<div class="table-wrap"><table>
 <thead>
 <tr>
 <th>工作</th>
@@ -1164,12 +1170,12 @@
 <td>提醒 interpretability 方法必须和强 baseline 比较，负结果也有价值。</td>
 </tr>
 </tbody>
-</table>
+</table></div>
 <p align="center"><em>表 13. 相关工作：本项目关注 graph 是否经得起干预实验验证。</em></p>
 <h2>附录 A. 完整 MVP Case 结果</h2>
-<details>
+<details open>
 <summary>展开查看 40 个 case 的完整结果</summary>
-<table>
+<div class="table-wrap"><table>
 <thead>
 <tr>
 <th>类别</th>
@@ -1625,13 +1631,13 @@
 <td>成功：组合关系中仍有明显 top-vs-random gap。</td>
 </tr>
 </tbody>
-</table>
+</table></div>
 <p align="center"><em>表 A1. 完整 40-case MVP 结果：完整 case-level Pearson、Spearman、top 平均值、random 平均值和 top-random gap。</em></p>
 </details>
 <h2>附录 B. 追加 20-case Stress Test 结果</h2>
-<details>
+<details open>
 <summary>展开查看 20 个 stress case 的完整结果</summary>
-<table>
+<div class="table-wrap"><table>
 <thead><tr><th>类别</th><th>Case</th><th style="text-align:right">Pearson corr.</th><th style="text-align:right">Spearman corr.</th><th style="text-align:right">Top 平均 logit drop</th><th style="text-align:right">Random 平均 logit drop</th><th style="text-align:right">Top - random</th><th style="text-align:right">Top - activation</th></tr></thead>
 <tbody>
 <tr><td>Negation / constraints</td><td><code>exclusive_choice_negation</code></td><td style="text-align:right">0.995</td><td style="text-align:right">0.943</td><td style="text-align:right">1.130</td><td style="text-align:right">0.228</td><td style="text-align:right">0.902</td><td style="text-align:right">1.044</td></tr>
@@ -1655,7 +1661,7 @@
 <tr><td>Negation / constraints</td><td><code>role_reversal</code></td><td style="text-align:right">0.996</td><td style="text-align:right">0.714</td><td style="text-align:right">1.336</td><td style="text-align:right">0.189</td><td style="text-align:right">1.147</td><td style="text-align:right">1.166</td></tr>
 <tr><td>Negation / constraints</td><td><code>exception_handling</code></td><td style="text-align:right">0.986</td><td style="text-align:right">1.000</td><td style="text-align:right">0.619</td><td style="text-align:right">0.085</td><td style="text-align:right">0.534</td><td style="text-align:right">0.570</td></tr>
 </tbody>
-</table>
+</table></div>
 <p align="center"><em>表 B1. 追加 20-case stress test 完整 case-level 结果，数据来源为 <code>attn-tracer/outputs/complex_20_cases/all_summaries.json</code>。</em></p>
 </details>
 

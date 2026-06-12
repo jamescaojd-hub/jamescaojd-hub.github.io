@@ -16,7 +16,7 @@ nav_order: 3
             <tr>
               <th scope="row" style="width: 20%">{{ post.date | date: '%b %d, %Y' }}</th>
               <td>
-                <a class="news-title" href="{{ post.url | relative_url }}">{{ post.title }}</a>
+                <a class="news-title" href="{{ post.url | relative_url }}" target="_blank" rel="noopener">{{ post.title }}</a>
                 {% if post.description %}
                   <div class="mt-1">{{ post.description }}</div>
                 {% endif %}
