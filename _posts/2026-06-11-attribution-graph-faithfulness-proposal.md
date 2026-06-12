@@ -1,7 +1,7 @@
 ---
 layout: post
 title: "Attribution Graph 到底准不准：用干预实验检查"
-date: 2026-06-12 10:00:00
+date: 2026-06-11 10:00:00
 description: "A research proposal on evaluating attribution graph faithfulness with causal intervention experiments."
 tags: [interpretability, attribution-graphs, circuit-tracing, llm]
 categories: [machine-learning-systems]
