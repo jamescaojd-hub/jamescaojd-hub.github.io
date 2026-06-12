@@ -1,0 +1,2219 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Attribution Graph Faithfulness Proposal</title>
+    <style>
+        :root {
+            --bg-color: #ffffff;
+            --text-color: #334155;
+            --heading-color: #0f172a;
+            --border-color: #e2e8f0;
+            --accent-color: #2563eb;
+            --code-bg: #f8fafc;
+            --blockquote-bg: #f0fdf4;
+            --blockquote-border: #22c55e;
+            --table-header-bg: #f1f5f9;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
+            line-height: 1.7;
+            color: var(--text-color);
+            background-color: var(--bg-color);
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 40px 20px;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        h1, h2, h3, h4, h5, h6 {
+            color: var(--heading-color);
+            font-weight: 600;
+            line-height: 1.3;
+            margin-top: 2em;
+            margin-bottom: 0.75em;
+        }
+
+        h1 {
+            font-size: 2.25em;
+            border-bottom: 2px solid var(--border-color);
+            padding-bottom: 0.3em;
+            margin-top: 0;
+        }
+
+        h2 {
+            font-size: 1.75em;
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: 0.3em;
+        }
+
+        h3 {
+            font-size: 1.35em;
+        }
+
+        p {
+            margin-top: 0;
+            margin-bottom: 1.2em;
+        }
+
+        a {
+            color: var(--accent-color);
+            text-decoration: none;
+        }
+
+        a:hover {
+            text-decoration: underline;
+        }
+
+        strong {
+            font-weight: 600;
+            color: var(--heading-color);
+        }
+
+        blockquote {
+            margin: 1.5em 0;
+            padding: 1em 1.5em;
+            border-left: 4px solid var(--blockquote-border);
+            background-color: var(--blockquote-bg);
+            border-radius: 0 8px 8px 0;
+            color: #166534;
+        }
+
+        blockquote p:last-child {
+            margin-bottom: 0;
+        }
+
+        code {
+            font-family: ui-monospace, SFMono-Regular, SF Mono, Menlo, Consolas, Liberation Mono, monospace;
+            font-size: 0.85em;
+            background-color: var(--code-bg);
+            padding: 0.2em 0.4em;
+            border-radius: 4px;
+            border: 1px solid var(--border-color);
+        }
+
+        pre {
+            background-color: var(--code-bg);
+            padding: 1.2em;
+            border-radius: 8px;
+            overflow-x: auto;
+            border: 1px solid var(--border-color);
+        }
+
+        pre code {
+            background-color: transparent;
+            padding: 0;
+            border: none;
+            font-size: 0.9em;
+            color: #334155;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 2em 0;
+            font-size: 0.95em;
+        }
+
+        th, td {
+            padding: 12px 16px;
+            border: 1px solid var(--border-color);
+            text-align: left;
+        }
+
+        th {
+            background-color: var(--table-header-bg);
+            font-weight: 600;
+            color: var(--heading-color);
+        }
+
+        tr:nth-child(even) {
+            background-color: #f8fafc;
+        }
+
+        img {
+            max-width: 100%;
+            height: auto;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            margin: 1.5em auto;
+            display: block;
+        }
+
+        .embed-frame {
+            width: 100%;
+            height: 980px;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            background: #fff;
+        }
+
+        .embed-note {
+            text-align: center;
+            color: #64748b;
+            font-size: 0.9em;
+            margin-top: -0.75em;
+            margin-bottom: 2em;
+        }
+
+        .interactive-scatter {
+            border: 1px solid var(--border-color);
+            border-radius: 18px;
+            background: linear-gradient(180deg, #ffffff 0%, #f8fafc 100%);
+            box-shadow: 0 18px 40px -28px rgba(15, 23, 42, 0.35);
+            padding: 18px;
+        }
+
+        .scatter-toolbar {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            margin-bottom: 14px;
+        }
+
+        .case-filter,
+        .case-picker {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .case-filter button,
+        .case-picker select {
+            border: 1px solid #cbd5e1;
+            background: #fff;
+            color: #334155;
+            border-radius: 999px;
+            padding: 8px 12px;
+            font: inherit;
+            font-size: 0.9em;
+            cursor: pointer;
+        }
+
+        .case-filter button.active {
+            background: #0f172a;
+            color: #fff;
+            border-color: #0f172a;
+        }
+
+        .case-picker label {
+            color: #64748b;
+            font-size: 0.9em;
+        }
+
+        .scatter-summary-card {
+            border: 1px solid #e2e8f0;
+            border-left: 6px solid var(--case-color, #2563eb);
+            border-radius: 16px;
+            background: #fff;
+            padding: 14px 16px;
+            margin-bottom: 14px;
+        }
+
+        .scatter-summary-card .case-title-row {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            justify-content: space-between;
+            gap: 8px;
+            margin-bottom: 6px;
+        }
+
+        .scatter-summary-card h4 {
+            margin: 0;
+            font-size: 1.05em;
+        }
+
+        .case-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            border-radius: 999px;
+            padding: 4px 9px;
+            background: color-mix(in srgb, var(--case-color, #2563eb) 12%, #fff);
+            color: var(--case-color, #2563eb);
+            font-weight: 700;
+            font-size: 0.78em;
+            letter-spacing: 0.02em;
+            text-transform: uppercase;
+        }
+
+        .case-metrics {
+            display: grid;
+            grid-template-columns: repeat(4, minmax(110px, 1fr));
+            gap: 8px;
+            margin: 10px 0 8px;
+        }
+
+        .metric-pill {
+            border: 1px solid #e2e8f0;
+            border-radius: 12px;
+            padding: 8px 10px;
+            background: #f8fafc;
+        }
+
+        .metric-pill span {
+            display: block;
+            color: #64748b;
+            font-size: 0.78em;
+        }
+
+        .metric-pill strong {
+            display: block;
+            margin-top: 2px;
+            font-size: 1em;
+        }
+
+        .scatter-shell {
+            position: relative;
+            border: 1px solid #e2e8f0;
+            border-radius: 18px;
+            background: #fff;
+            overflow: hidden;
+        }
+
+        #figure4ScatterSvg {
+            display: block;
+            width: 100%;
+            height: auto;
+        }
+
+        .scatter-point {
+            transition: r 0.14s ease, opacity 0.14s ease, stroke-width 0.14s ease;
+            cursor: pointer;
+        }
+
+        .scatter-point:hover,
+        .scatter-point.selected {
+            r: 8.5;
+            stroke-width: 3;
+            opacity: 1;
+        }
+
+        .scatter-tooltip {
+            position: absolute;
+            min-width: 210px;
+            max-width: 270px;
+            padding: 10px 12px;
+            border: 1px solid #cbd5e1;
+            border-radius: 12px;
+            background: rgba(255, 255, 255, 0.96);
+            box-shadow: 0 18px 36px -22px rgba(15, 23, 42, 0.55);
+            pointer-events: none;
+            opacity: 0;
+            transform: translate(-50%, calc(-100% - 12px));
+            transition: opacity 0.12s ease;
+            font-size: 0.86em;
+            z-index: 2;
+        }
+
+        .scatter-tooltip.visible {
+            opacity: 1;
+        }
+
+        .scatter-tooltip strong {
+            display: block;
+            margin-bottom: 4px;
+        }
+
+        .scatter-legend {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px 14px;
+            padding: 10px 4px 0;
+            color: #475569;
+            font-size: 0.86em;
+        }
+
+        .scatter-legend span {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .legend-dot {
+            width: 11px;
+            height: 11px;
+            border-radius: 999px;
+            display: inline-block;
+            border: 2px solid #fff;
+            box-shadow: 0 0 0 1px #cbd5e1;
+        }
+
+        .selected-feature-panel {
+            margin-top: 12px;
+            border: 1px solid #e2e8f0;
+            border-radius: 14px;
+            background: #fff;
+            padding: 12px 14px;
+            color: #475569;
+            font-size: 0.92em;
+        }
+
+        .selected-feature-panel strong {
+            color: #0f172a;
+        }
+
+        .original-graph-viewer {
+            border: 1px solid #e2e8f0;
+            border-radius: 20px;
+            background: linear-gradient(180deg, #f8fafc 0%, #fff 160px);
+            padding: 14px;
+            box-shadow: 0 18px 38px -30px rgba(15, 23, 42, 0.45);
+        }
+
+        .graph-selector-bar {
+            display: flex;
+            align-items: end;
+            justify-content: space-between;
+            gap: 16px;
+            margin-bottom: 14px;
+            flex-wrap: wrap;
+        }
+
+        .graph-case-picker {
+            display: grid;
+            gap: 6px;
+            min-width: min(100%, 420px);
+        }
+
+        .graph-case-picker label {
+            color: #64748b;
+            font-size: 0.84em;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.04em;
+        }
+
+        .graph-case-picker select {
+            border: 1px solid #cbd5e1;
+            border-radius: 12px;
+            background: #fff;
+            color: #0f172a;
+            font: inherit;
+            padding: 10px 12px;
+            min-height: 42px;
+            box-shadow: 0 1px 2px rgba(15, 23, 42, 0.06);
+        }
+
+        .graph-open-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            border: 1px solid #cbd5e1;
+            border-radius: 999px;
+            padding: 9px 13px;
+            color: #2563eb;
+            background: #fff;
+            font-weight: 700;
+            text-decoration: none;
+            box-shadow: 0 1px 2px rgba(15, 23, 42, 0.06);
+        }
+
+        .graph-open-link:hover {
+            background: #eff6ff;
+        }
+
+        .original-graph-card {
+            border: 1px solid #e2e8f0;
+            border-radius: 18px;
+            background: #fff;
+            box-shadow: 0 14px 32px -26px rgba(15, 23, 42, 0.35);
+            overflow: hidden;
+        }
+
+        .original-graph-header {
+            padding: 14px 16px 10px;
+            border-bottom: 1px solid #e2e8f0;
+            background: linear-gradient(180deg, #fff 0%, #f8fafc 100%);
+        }
+
+        .original-graph-header h4 {
+            margin: 6px 0 4px;
+            font-size: 1em;
+        }
+
+        .graph-case-tag {
+            display: inline-flex;
+            border-radius: 999px;
+            padding: 3px 8px;
+            color: var(--graph-color, #2563eb);
+            background: color-mix(in srgb, var(--graph-color, #2563eb) 12%, #fff);
+            font-weight: 700;
+            font-size: 0.76em;
+            text-transform: uppercase;
+            letter-spacing: 0.03em;
+        }
+
+        .original-graph-frame {
+            width: 100%;
+            height: 760px;
+            border: 0;
+            display: block;
+            background: #fff;
+        }
+
+        .server-note {
+            margin: 10px 0 0;
+            color: #64748b;
+            font-size: 0.88em;
+        }
+
+        details.figure-details {
+            margin: 1.2em 0 2em;
+            border: 1px solid var(--border-color);
+            border-radius: 10px;
+            background: #fff;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.06);
+        }
+
+        details.figure-details > summary {
+            list-style: none;
+            cursor: pointer;
+            padding: 12px 14px;
+            color: #64748b;
+            font-size: 0.95em;
+        }
+
+        details.figure-details > summary::-webkit-details-marker {
+            display: none;
+        }
+
+        details.figure-details[open] > summary {
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .figure-body {
+            padding: 14px;
+        }
+
+        details.img-details > summary {
+            list-style: none;
+            cursor: pointer;
+        }
+
+        details.img-details > summary::-webkit-details-marker {
+            display: none;
+        }
+
+        details.img-details summary img {
+            margin: 0;
+            box-shadow: none;
+            border-radius: 8px;
+        }
+
+        details.img-details .img-full {
+            margin-top: 10px;
+        }
+
+        p[align="center"] {
+            text-align: center;
+            color: #64748b;
+            font-size: 0.9em;
+            margin-top: -1em;
+            margin-bottom: 2em;
+        }
+        
+        ul, ol {
+            padding-left: 2em;
+            margin-bottom: 1.5em;
+        }
+        
+        li {
+            margin-bottom: 0.5em;
+        }
+
+        .proposal-container {
+            background: #fff;
+            padding: 40px 60px;
+            border-radius: 12px;
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.05), 0 8px 10px -6px rgba(0, 0, 0, 0.01);
+            border: 1px solid #f1f5f9;
+        }
+        
+        @media (max-width: 768px) {
+            .proposal-container {
+                padding: 20px 25px;
+            }
+            body {
+                padding: 20px 10px;
+            }
+
+            .case-metrics {
+                grid-template-columns: repeat(2, minmax(120px, 1fr));
+            }
+
+            .scatter-toolbar {
+                align-items: stretch;
+            }
+
+            .case-filter,
+            .case-picker,
+            .case-picker select {
+                width: 100%;
+            }
+
+            .graph-selector-bar {
+                align-items: stretch;
+            }
+
+            .graph-open-link {
+                justify-content: center;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="proposal-container">
+        <h1>Attribution Graph 到底准不准：用干预实验检查</h1>
+<h2>1. 执行摘要</h2>
+<p>Attribution graph 不能只看起来合理，还要经得起实验检验。它说某个 feature 很重要，我们就把这个 feature 临时关掉；如果模型对目标答案的信心真的明显下降，说明 graph 的判断比较可信。反过来，如果关掉后几乎没变化，说明这张 graph 可能只是“画得像解释”，但没有真正抓到模型在用的东西。</p>
+<p>我们做了一个轻量级验证流程：对每个 prompt 先生成 attribution graph，再按 attribution score 选出一批 feature，逐个把它们置零，最后看 target token 的 logit 掉了多少。当前主实验已跑完 40 个 case，覆盖 factual recall、copying / induction、simple reasoning 和 complex reasoning 四类任务，每类 10 个 case；此外又参考 <code>attn-tracer/scripts/run_complex_cases.py</code> 追加跑完 20 个更强的 complex / attention / negation stress cases。</p>
+<p>目前最有价值的发现不是“graph 永远正确”，而是它在哪些地方会出错：有些高分 feature 关掉后影响不大；有些 random feature 反而也很重要；复杂推理可能不是靠单个 feature 完成，而是分散在一组 features 里。把这些失败情况整理清楚，可以反过来指导下一步怎么改进 circuit tracing 和 attention-aware attribution。</p>
+<h2>2. 研究动机：解释不能只靠看图</h2>
+<blockquote>
+<p>如果 graph 说某个 feature 或 edge 很重要，那么我们动它的时候，模型输出就应该有明显变化。</p>
+</blockquote>
+<p>所以，本项目不是再提出一种新的画图方法，而是检查现有 graph 说得准不准。相比原始 Circuit Tracing 论文里偏个案展示的验证方式，这里更关心三个直接问题：</p>
+<ol>
+<li>attribution score 高的 feature，关掉后影响是不是真的更大；</li>
+<li>attribution graph 是否比 random、activation magnitude、activation × gradient 这些简单方法更有用；</li>
+<li>graph 在不同任务上是否一样可靠，尤其是在强依赖 attention 或组合推理的任务上会不会明显变差。</li>
+</ol>
+<p>如果验证成立，attribution graph 就可以作为定位关键 feature、edge 或 routing mechanism 的工具；如果验证失败，失败本身也有价值，因为它会告诉我们当前方法哪里不够好，比如 fixed-attention graph 是否漏掉了 QK attention routing，或者 graph 是否把 value flow、attention routing 和 activation magnitude 混在了一起。</p>
+<h2>3. 评估设计</h2>
+<h3>3.1 实验设计</h3>
+<details class="figure-details">
+  <summary><em>图 1. 从 attribution graph 到因果干预验证的整体流程。</em></summary>
+  <div class="figure-body">
+    <p><img src="../img/proposal/att-tracer-arch.png" alt="Attention tracer 架构" /></p>
+  </div>
+</details>
+<table>
+<thead>
+<tr>
+<th>组成部分</th>
+<th>设计</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>分析单元</td>
+<td>graph 中被选中的单个 feature。</td>
+</tr>
+<tr>
+<td>干预方式</td>
+<td>每次只把一个 feature activation 置零，其他条件保持不变。</td>
+</tr>
+<tr>
+<td>输出指标</td>
+<td>target-token logit drop，也就是目标答案的 logit 降了多少。</td>
+</tr>
+<tr>
+<td>主要对照</td>
+<td>top attribution features 对比 middle / bottom features、random features 和 activation-magnitude features。</td>
+</tr>
+<tr>
+<td>聚合方式</td>
+<td>每个 case 内看分数和真实影响是否相关；每类任务内看 gap、median、range 和典型失败 case。</td>
+</tr>
+</tbody>
+</table>
+<p align="center"><em>表 1. 评估设计：把 attribution graph 的静态重要性分数转化为可干预、可聚合的因果验证流程。</em></p>
+<p>更具体地说，每个 case 固定做三步：</p>
+<ol>
+<li><strong>按 graph 选 feature</strong>：从 attribution graph 中抽取和 target logit 相关的 features，按 <code>abs(attribution score)</code> 排序，再取 top / middle / bottom 三组。</li>
+<li><strong>逐个置零</strong>：每次只动一个 feature activation，保持 prompt、target token、模型权重和其他 feature 不变。</li>
+<li><strong>看是否对得上</strong>：在同一 prompt 内比较 graph score 与 <code>abs(logit drop)</code>，再看 top features 是否明显强过 random / activation-based baselines。</li>
+</ol>
+<p>这种设计的好处是简单、可复现，而且能直接回答一个核心问题：graph 排名前列的 feature，关掉后是不是真的更有影响。局限也很明确：它只检查单个 feature，不能证明整个 circuit 或 attention routing 都已经被解释清楚。</p>
+<h3>3.2 任务族</h3>
+<table>
+<thead>
+<tr>
+<th>任务族</th>
+<th>示例</th>
+<th>目的</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Factual recall</td>
+<td><code>The capital of France is</code> → <code> Paris</code></td>
+<td>看 graph 能不能找到支持事实答案的关键 feature。</td>
+</tr>
+<tr>
+<td>Copying / induction</td>
+<td><code>A B C. A B</code> → <code> C</code></td>
+<td>看 graph 能不能解释重复、复制这类模式。</td>
+</tr>
+<tr>
+<td>Simple reasoning</td>
+<td><code>Dallas is in Texas. Austin is in</code> → <code> Texas</code></td>
+<td>看 graph 能不能处理一跳关系和简单推理。</td>
+</tr>
+<tr>
+<td>Complex reasoning</td>
+<td><code>The key is in the box. The box is in the drawer. The key is in the</code> →  <code>drawer</code></td>
+<td>看 graph 在多步关系、空间关系、三段论等任务上是否还可靠。</td>
+</tr>
+</tbody>
+</table>
+<p align="center"><em>表 2. 任务族：40-case MVP 覆盖 factual recall、copying / induction、simple reasoning 和 complex reasoning 四类行为。</em></p>
+<h3>3.3 评估指标</h3>
+<table>
+<thead>
+<tr>
+<th>指标</th>
+<th>定义</th>
+<th>解释</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Attribution score</td>
+<td>graph 给 feature / edge 的重要性分数。</td>
+<td>graph 认为它对 target token 有多重要。</td>
+</tr>
+<tr>
+<td>Logit drop</td>
+<td>feature 置零后 target logit 的下降量。</td>
+<td>真实影响；越大表示这个 feature 越关键。</td>
+</tr>
+<tr>
+<td>Pearson correlation</td>
+<td><code>abs(score)</code> 与 <code>abs(logit drop)</code> 的线性相关。</td>
+<td>看分数大小是否能预测真实影响大小。</td>
+</tr>
+<tr>
+<td>Spearman correlation</td>
+<td>attribution rank 与 intervention-effect rank 的相关性。</td>
+<td>看 graph 是否把真正重要的 feature 排在前面。</td>
+</tr>
+<tr>
+<td>Top-random gap</td>
+<td>top attribution features 与 random features 的平均 logit drop 差值。</td>
+<td>看 graph 是否比随机选 feature 更好。</td>
+</tr>
+<tr>
+<td>Top-activation gap</td>
+<td>top attribution features 与 activation-magnitude features 的平均 logit drop 差值。</td>
+<td>看 graph 是否比“activation 大就重要”这个简单规则更好。</td>
+</tr>
+</tbody>
+</table>
+<p align="center"><em>表 3. 评估指标：既看 graph 分数和真实影响是否相关，也看它是否强过简单 baseline。</em></p>
+<h3>3.4 对照方法与判断标准</h3>
+<p>为了避免自说自话，我们把 attribution graph 和三类简单 baseline 放在一起比较：</p>
+<table>
+<thead>
+<tr>
+<th>Baseline</th>
+<th>控制的替代解释</th>
+<th>重要性</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Random graph feature</td>
+<td>随机选择 graph 中的 feature。</td>
+<td>检查 top attribution 是否真的比随便选更好。</td>
+</tr>
+<tr>
+<td>Activation magnitude</td>
+<td>选择 activation 最大的 feature。</td>
+<td>排除“只是因为这个 feature 激活更大”的解释。</td>
+</tr>
+<tr>
+<td>Bottom / middle attribution feature</td>
+<td>选择低分或中等分 graph feature。</td>
+<td>检查 attribution score 是否真的有排序意义。</td>
+</tr>
+</tbody>
+</table>
+<p align="center"><em>表 4. 对照方法：检查 graph 是否真的比随机选择和 activation magnitude 更有用。</em></p>
+<table>
+<thead>
+<tr>
+<th>标签</th>
+<th>MVP 阶段的判断标准</th>
+<th>解释</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Strong support</td>
+<td>Pearson / Spearman 为正，且 top-random gap 与 top-activation gap 都明显大于 0（通常 &gt; 0.5 logit）。</td>
+<td>graph 的判断和真实干预结果基本一致。</td>
+</tr>
+<tr>
+<td>Weak / boundary</td>
+<td>相关性为正但 gap 很小，或 random / activation baseline 接近 top。</td>
+<td>graph 可能有用，但还不能排除简单 baseline 的解释。</td>
+</tr>
+<tr>
+<td>Failure</td>
+<td>Pearson 接近 0 或为负，且 top-random gap / top-activation gap 接近 0 或为负。</td>
+<td>graph 没有把真正重要的 feature 排到前面。</td>
+</tr>
+</tbody>
+</table>
+<p align="center"><em>表 5. 判断标签：MVP 阶段用来区分支持、边界和失败案例。</em></p>
+<h2>4. MVP 结果：哪里有效，哪里失败</h2>
+<p>我们已经在 <code>circuit-tracer</code> 上跑通第一版 MVP。本轮实验用的是 CPU 环境和小规模配置（<code>batch_size=16</code>，<code>max_feature_nodes=100</code>，<code>top_k=2</code>）。目标不是给出最终结论，而是先确认这套评估流程能跑通，并观察初步趋势。</p>
+<p>由于当前 <code>AttributionTargets</code> 要求 string target 被 tokenize 成单个 token，MVP 中所有 target 都选成单 token，例如 <code>&quot; Paris&quot;</code>、<code>&quot; C&quot;</code>、<code>&quot; Texas&quot;</code>、<code>&quot; three&quot;</code>。</p>
+<p>MVP 的核心信号很清楚：在 factual / lexical continuation 任务上，attribution graph 通常能找对重要 feature，而且强过 random 和 activation-magnitude baseline；但在 arithmetic reasoning 上，这种优势最不稳定，这是目前最明确的失败边界。追加的 20-case stress test 进一步细化了这个结论：分布式算术里 <code>arithmetic_fraction_logic</code> 的 top-random gap 为 -0.013，而 attention routing、compositional reasoning 和 negation / constraints 组整体仍有正向 baseline advantage。</p>
+<h3>4.1 定性成功案例：RGB copying graph</h3>
+<p>下面先看一个成功 case。Prompt 是 <code>red blue green. red blue</code>，目标 token 是 <code>green</code>。在这个 copying / induction 例子中，graph 高亮了和 <code>green</code> 输出相关的 embedding 与中高层 feature；后续干预实验也显示，这些 top features 的影响明显大于 random features。</p>
+<table>
+<thead>
+<tr>
+<th>截图</th>
+<th>在 graph 中的作用</th>
+<th>用途</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>
+  <details class="img-details">
+    <summary><img src="../img/proposal/RGB_final_green.png" alt="RGB final green attribution graph" width="260"></summary>
+    <div class="img-full"><img src="../img/proposal/RGB_final_green.png" alt="RGB final green attribution graph" /></div>
+  </details>
+</td>
+<td>最终输出视图：展示目标 token <code>green</code> 以及对输出 logit 贡献最大的 input features。</td>
+<td>放在最前作为定性成功概览，直观说明 graph 在 copying case 中定位到了支持 <code>green</code> 的关键路径。</td>
+</tr>
+<tr>
+<td>
+  <details class="img-details">
+    <summary><img src="../img/proposal/RGB_L16_1056.png" alt="RGB layer 16 feature 1056" width="260"></summary>
+    <div class="img-full"><img src="../img/proposal/RGB_L16_1056.png" alt="RGB layer 16 feature 1056" /></div>
+  </details>
+</td>
+<td>中间层 feature：<code>L16/F1056 @ token 'green'</code>，位于中层并向后续特征传播。</td>
+<td>展示 graph 中一个高影响中间节点；该节点表示一种局部英文结构，起到承上启下作用，并增强绿色输入信号。</td>
+</tr>
+<tr>
+<td>
+  <details class="img-details">
+    <summary><img src="../img/proposal/RGB_L21_2942.png" alt="RGB layer 21 feature 2942" width="260"></summary>
+    <div class="img-full"><img src="../img/proposal/RGB_L21_2942.png" alt="RGB layer 21 feature 2942" /></div>
+  </details>
+</td>
+<td>后期 feature：<code>L21/F2942 @ token 'blue'</code>，靠近输出端并连接到 <code>green</code> prediction。</td>
+<td>该 feature 包含 greater than、lower than、more than 等含义，有明显顺序倾向，和该 case 的顺序推理目标吻合。</td>
+</tr>
+</tbody>
+</table>
+<p align="center"><em>表 6. `copy_sequence_red_blue` 成功 case 的 attribution graph 截图索引。第一行是全局输出视图，后两行是代表性中间 / 后期 feature 细节。</em></p>
+<h3>4.2 任务级汇总</h3>
+<table>
+<thead>
+<tr>
+<th>任务族</th>
+<th style="text-align:right"><span style="display:inline-block; min-width:70px; white-space:nowrap;"># cases</span></th>
+<th style="text-align:right"><span style="display:inline-block; min-width:120px; white-space:nowrap;">Pearson range</span></th>
+<th style="text-align:right">Pearson median</th>
+<th style="text-align:right"><span style="display:inline-block; min-width:170px; white-space:nowrap;">Top-random gap range</span></th>
+<th style="text-align:right">Gap median</th>
+<th>主要观察</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Factual recall</td>
+<td style="text-align:right">10</td>
+<td style="text-align:right">0.917–1.000</td>
+<td style="text-align:right">0.997</td>
+<td style="text-align:right">0.500–1.704</td>
+<td style="text-align:right">0.860</td>
+<td>整体最稳定；10/10 case 的 top-random gap 为正，Pearson 中位数 0.997。</td>
+</tr>
+<tr>
+<td>Copying / induction</td>
+<td style="text-align:right">10</td>
+<td style="text-align:right">0.995–1.000</td>
+<td style="text-align:right">0.997</td>
+<td style="text-align:right">0.000–1.063</td>
+<td style="text-align:right">0.681</td>
+<td>相关性很高，但 random 可偶然命中关键 feature；<code>copy_sequence_animals</code> gap 为 0。</td>
+</tr>
+<tr>
+<td>Simple reasoning</td>
+<td style="text-align:right">10</td>
+<td style="text-align:right">-0.057–0.999</td>
+<td style="text-align:right">0.988</td>
+<td style="text-align:right">0.004–1.845</td>
+<td style="text-align:right">0.868</td>
+<td>关系/词汇类很强，算术仍是主要失败边界；Pearson range 被减法 case 拉低。</td>
+</tr>
+<tr>
+<td>Complex reasoning</td>
+<td style="text-align:right">10</td>
+<td style="text-align:right">0.887–0.998</td>
+<td style="text-align:right">0.996</td>
+<td style="text-align:right">0.152–1.007</td>
+<td style="text-align:right">0.748</td>
+<td>多数 case 有正信号，effect size 较 factual / simple relation 小；nested location 仍偏弱。</td>
+</tr>
+<tr>
+<td>Complex stress test</td>
+<td style="text-align:right">20</td>
+<td style="text-align:right">0.639–1.000</td>
+<td style="text-align:right">0.987</td>
+<td style="text-align:right">-0.013–2.991</td>
+<td style="text-align:right">0.513</td>
+<td>新增总类别；包含更强算术、组合、attention routing 和约束/否定 stress cases，整体为正但方差更大。</td>
+</tr>
+</tbody>
+</table>
+<p align="center"><em>表 7. 任务级汇总：按任务类型展示 correlation 和 top-random gap。</em></p>
+<details class="figure-details">
+  <summary><em>图 2. 五类任务的整体表现：原 40-case 四类任务加上新增 Complex stress test 总类别，包含 Pearson、Top-random gap 和 Top-activation gap。</em></summary>
+  <div class="figure-body">
+    <iframe class="embed-frame" src="../img/proposal/faithfulness_task_family_dashboard.html" loading="lazy" title="Task-family faithfulness dashboard (interactive)"></iframe>
+    <p class="embed-note">如果 iframe 无法加载，可直接打开 <a href="../img/proposal/faithfulness_task_family_dashboard.html" target="_blank" rel="noopener">faithfulness_task_family_dashboard.html</a>；或查看静态图 <a href="../img/proposal/faithfulness_task_family_dashboard.png" target="_blank" rel="noopener">faithfulness_task_family_dashboard.png</a>。</p>
+  </div>
+</details>
+
+<details class="figure-details">
+  <summary><em>图 3. 不同 feature 组的干预效果：对比 top attribution、activation magnitude、random 与 bottom features；新增 Complex stress test 类别已作为第五组加入。</em></summary>
+  <div class="figure-body">
+    <p><img src="../img/proposal/feature_group_logit_drop_by_family.png" alt="Feature-group logit drop by task family" /></p>
+  </div>
+</details>
+<h3>4.3 graph 是否强过 activation magnitude</h3>
+<p>除了 random baseline，我们还加入了 activation magnitude baseline。它的做法很简单：在同一批候选 features 里，直接选原始 activation 最大的那些。这样可以检查一个问题：graph 找到的重要 feature，是真的重要，还是只是因为它们本来激活值就大。</p>
+<table>
+<thead>
+<tr>
+<th>任务族</th>
+<th style="text-align:right"><span style="display:inline-block; min-width:170px; white-space:nowrap;">Top-activation gap range</span></th>
+<th style="text-align:right">Gap median</th>
+<th style="text-align:right">正向 case</th>
+<th>主要观察</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Factual recall</td>
+<td style="text-align:right">0.563–1.719</td>
+<td style="text-align:right">0.803</td>
+<td style="text-align:right">10/10</td>
+<td>graph 明显优于 activation magnitude，说明结果不只是因为 feature 激活大。</td>
+</tr>
+<tr>
+<td>Copying / induction</td>
+<td style="text-align:right">0.151–1.124</td>
+<td style="text-align:right">0.924</td>
+<td style="text-align:right">10/10</td>
+<td>top attribution features 通常比高 activation features 更有影响。</td>
+</tr>
+<tr>
+<td>Simple reasoning</td>
+<td style="text-align:right">-0.041–1.427</td>
+<td style="text-align:right">0.872</td>
+<td style="text-align:right">9/10</td>
+<td>整体为正，但 arithmetic case 会拉低结果。</td>
+</tr>
+<tr>
+<td>Complex reasoning</td>
+<td style="text-align:right">0.076–0.799</td>
+<td style="text-align:right">0.517</td>
+<td style="text-align:right">10/10</td>
+<td>仍然为正，但优势比 factual / copying 弱。</td>
+</tr>
+<tr>
+<td>Complex stress test</td>
+<td style="text-align:right">0.177–2.291</td>
+<td style="text-align:right">0.698</td>
+<td style="text-align:right">20/20</td>
+<td>追加 stress cases 作为独立总类别后仍全部为正，但 mixed stress set 的 top-random gap 方差更大。</td>
+</tr>
+</tbody>
+</table>
+<p align="center"><em>表 8. Top-activation gap：检查 graph 是否比直接选高 activation feature 更好。</em></p>
+<p>这一结果说明：在 factual recall、copying / induction、多数关系类 case 以及新增 Complex stress test 总类别中，graph 不只是选中了“激活大的 feature”，而是确实提供了额外信息。相反，<code>arithmetic_reasoning_remaining</code> 的 Top-activation gap 为 -0.041，<code>arithmetic_reasoning_three</code> 约为 0，说明算术失败不是 random baseline 的偶然现象，而是 graph 排序本身没有稳定超过简单 activation heuristic。</p>
+
+<p>为进一步覆盖比 40-case MVP 更强的组合、attention routing 和约束类任务，本轮参考 <code>attn-tracer/scripts/run_complex_cases.py</code> 完整运行了 20 个 stress cases。运行命令使用 CPU 轻量配置：<code>batch_size=128</code>、<code>max_feature_nodes=50</code>、<code>top_k=2</code>，输出写入 <code>attn-tracer/outputs/complex_20_cases/</code>。在图 2 / 图 3 中，这 20 个 case 已整体合并为一个新的 <code>Complex stress test</code> 类别；下面两张表放在本节中，直接服务于“graph 是否强过 activation magnitude / random baseline”的判断。</p>
+<table>
+<thead><tr><th>Stress family</th><th style="text-align:right"># cases</th><th style="text-align:right">Pearson median</th><th style="text-align:right">Top-random gap range</th><th style="text-align:right">Gap median</th><th style="text-align:right">Top-activation gap median</th><th>主要观察</th></tr></thead>
+<tbody>
+<tr><td>Distributed arithmetic</td><td style="text-align:right">5</td><td style="text-align:right">0.827</td><td style="text-align:right">-0.013–1.258</td><td style="text-align:right">0.347</td><td style="text-align:right">0.396</td><td>整体有正相关，但 <code>arithmetic_fraction_logic</code> 的 top-random gap 为负，说明算术仍是最不稳定边界。</td></tr>
+<tr><td>Compositional reasoning</td><td style="text-align:right">5</td><td style="text-align:right">0.994</td><td style="text-align:right">0.409–0.924</td><td style="text-align:right">0.559</td><td style="text-align:right">0.890</td><td>空间、嵌套、亲属、时间和传递层级均为正 gap，强于 40-case 中较弱的 nested-location 样例。</td></tr>
+<tr><td>Attention routing</td><td style="text-align:right">5</td><td style="text-align:right">0.876</td><td style="text-align:right">0.371–2.991</td><td style="text-align:right">0.493</td><td style="text-align:right">0.440</td><td>long induction、noisy copy、ICL mapping、reverse copy 和 variable binding 均为正 gap，但 <code>reverse_sequence_copy</code> 的 Spearman 只有 0.429，仍需 attention-aware QK attribution。</td></tr>
+<tr><td>Negation / constraints</td><td style="text-align:right">5</td><td style="text-align:right">0.994</td><td style="text-align:right">0.331–1.147</td><td style="text-align:right">0.902</td><td style="text-align:right">0.941</td><td>negation、override、attribute cancellation、role binding、exception handling 均显示 top features 明显强于 baseline。</td></tr>
+</tbody>
+</table>
+<p align="center"><em>表 9. 追加 20-case stress test：按更复杂任务族聚合 correlation 和 baseline gap。</em></p>
+<p>表 9 展示整体趋势；表 10 只保留两个最典型的 case-level 对照：一个代表 compositional stress success，另一个代表 arithmetic stress boundary。</p>
+<table>
+<thead><tr><th>Stress case</th><th>来源子族</th><th style="text-align:right">Pearson</th><th style="text-align:right">Spearman</th><th style="text-align:right">Top-random gap</th><th style="text-align:right">Top-activation gap</th><th style="min-width:360px">解释</th></tr></thead>
+<tbody>
+<tr><td><code>kinship_three_hop</code></td><td>Compositional reasoning</td><td style="text-align:right">0.999</td><td style="text-align:right">0.943</td><td style="text-align:right">0.899</td><td style="text-align:right">0.826</td><td style="min-width:360px">三跳亲属组合推理；score-effect alignment 很清楚，两个 baseline gap 都较大。</td></tr>
+<tr><td><code>arithmetic_fraction_logic</code></td><td>Distributed arithmetic</td><td style="text-align:right">0.722</td><td style="text-align:right">0.371</td><td style="text-align:right">-0.013</td><td style="text-align:right">0.177</td><td style="min-width:360px">分数/数量组合边界；Pearson 为正但 top-random gap 为负，random baseline 偶然更强。</td></tr>
+</tbody>
+</table>
+<p align="center"><em>表 10. 代表性 complex stress cases：一个成功样例和一个边界样例。</em></p>
+<p>完整 20-case stress-test 的 case-level 结果见附录 B。整体上，这 20 个额外 case 支持“graph 排名通常有因果预测力”的主结论，但也强化了两个边界：一是算术/数量组合仍不稳定，二是 attention-heavy 任务即便 node-level gap 为正，也不能证明 graph 已解释 attention routing 的形成。</p>
+<h3>4.4 成功与失败的可视化对照</h3>
+<p>为了避免只看表格，我们也画了 score-vs-effect scatter。它看的就是一个很直接的问题：如果 graph score 可信，那么 <code>abs(attribution score)</code> 越高，<code>abs(logit drop)</code> 应该整体越大。当前交互式版本除了原 40-case 中的 good / weak cases，也加入了多个新跑出的 complex stress cases：例如 <code>nested_containment_distractor</code>、<code>kinship_three_hop</code>、<code>conditional_override_late</code>、<code>arithmetic_fraction_logic</code> 和 <code>reverse_sequence_copy</code>，便于直接对比 stress setting 下的 score-effect alignment。</p>
+<details class="figure-details" open>
+  <summary><em>图 4. 交互式成功与失败 scatter：可切换多个 good / bad case，点击点查看 feature 细节。</em></summary>
+  <div class="figure-body">
+    <div class="interactive-scatter" id="figure4InteractiveScatter">
+      <div class="scatter-toolbar">
+        <div class="case-filter" role="group" aria-label="选择 case 类型">
+          <button type="button" class="active" data-figure4-filter="good">Good / stress-good cases</button>
+          <button type="button" data-figure4-filter="bad">Bad / stress-weak cases</button>
+        </div>
+        <div class="case-picker">
+          <label for="figure4CaseSelect">View case</label>
+          <select id="figure4CaseSelect" aria-label="选择要查看的 case"></select>
+        </div>
+      </div>
+      <div class="scatter-summary-card" id="figure4Summary"></div>
+      <div class="scatter-shell">
+        <svg id="figure4ScatterSvg" viewBox="0 0 760 460" role="img" aria-label="score-vs-effect interactive scatter"></svg>
+        <div class="scatter-tooltip" id="figure4Tooltip"></div>
+      </div>
+      <div class="scatter-legend" aria-label="图例">
+        <span><i class="legend-dot" style="background:#e11d48"></i>top attribution</span>
+        <span><i class="legend-dot" style="background:#f59e0b"></i>middle</span>
+        <span><i class="legend-dot" style="background:#2563eb"></i>bottom</span>
+        <span><i class="legend-dot" style="background:#64748b"></i>random</span>
+        <span><i class="legend-dot" style="background:#14b8a6"></i>activation magnitude</span>
+      </div>
+      <div class="selected-feature-panel" id="figure4FeaturePanel">点击任意圆点查看该 feature 的 layer、position、feature index、score 和干预后的 logit drop。</div>
+    </div>
+  </div>
+</details>
+<details class="figure-details" open>
+  <summary><em>图 5. Good / bad case 的原始交互式 attribution graph：使用 circuit-tracer 官方 frontend。</em></summary>
+  <div class="figure-body">
+    <div class="original-graph-viewer" id="figure5GraphViewer">
+      <div class="graph-selector-bar">
+        <div class="graph-case-picker">
+          <label for="figure5GraphSelect">View attribution graph</label>
+          <select id="figure5GraphSelect" aria-label="选择要展示的 attribution graph">
+            <option value="copy-sequence-red-blue-success"
+              data-url="http://localhost:8041/?slug=copy-sequence-red-blue-success&amp;pruningThreshold=0.8&amp;clickedId=27_4433_6"
+              data-color="#22c55e"
+              data-tag="Good attribution graph"
+              data-title="copy_sequence_red_blue：copying / induction 成功案例"
+              data-prompt="red blue green. red blue → green"
+              data-link-label="good case graph">copy_sequence_red_blue · good case</option>
+            <option value="arithmetic-reasoning-remaining"
+              data-url="http://localhost:8042/?slug=arithmetic-reasoning-remaining&amp;pruningThreshold=0.8&amp;clickedId=27_2149_11"
+              data-color="#ef4444"
+              data-tag="Bad attribution graph"
+              data-title="arithmetic_reasoning_remaining：算术失败案例"
+              data-prompt="Tom had five candies and gave two away. Tom has → three"
+              data-link-label="bad case graph">arithmetic_reasoning_remaining · bad case</option>
+          </select>
+        </div>
+        <a class="graph-open-link" id="figure5OpenLink" href="http://localhost:8041/?slug=copy-sequence-red-blue-success&amp;pruningThreshold=0.8&amp;clickedId=27_4433_6" target="_blank" rel="noopener">新窗口打开当前 graph ↗</a>
+      </div>
+      <article class="original-graph-card" id="figure5GraphCard" style="--graph-color:#22c55e">
+        <div class="original-graph-header">
+          <span class="graph-case-tag" id="figure5GraphTag">Good attribution graph</span>
+          <h4 id="figure5GraphTitle"><code>copy_sequence_red_blue</code>：copying / induction 成功案例</h4>
+          <p id="figure5GraphPrompt"><code>red blue green. red blue</code> → <code> green</code>。</p>
+        </div>
+        <iframe class="original-graph-frame" id="figure5GraphFrame" src="http://localhost:8041/?slug=copy-sequence-red-blue-success&amp;pruningThreshold=0.8&amp;clickedId=27_4433_6" loading="lazy" title="Original circuit-tracer attribution graph: copy_sequence_red_blue"></iframe>
+        <p class="server-note">若 iframe 未加载，直接打开 <a id="figure5FallbackLink" href="http://localhost:8041/?slug=copy-sequence-red-blue-success&amp;pruningThreshold=0.8&amp;clickedId=27_4433_6" target="_blank" rel="noopener">good case graph</a>。</p>
+      </article>
+    </div>
+  </div>
+</details>
+<h2>5. 结果解读：失败案例告诉我们什么</h2>
+<ul>
+<li><strong>算术是最清楚的失败边界。</strong> <code>arithmetic_reasoning_remaining</code> 的 Pearson 为 -0.057、top-random gap 为 0.004、Top-activation gap 为 -0.041；<code>arithmetic_reasoning_three</code> 的 Top-activation gap 也接近 0。这说明当前 graph 还不能稳定找到数量组合相关的关键 features。下一步应优先检查：算术机制是否分散在很多 features 里、单 feature 置零是否太局部、CLT feature 是否没有对齐算术变量。</li>
+<li><strong>当前 graph 可能解释不了 attention 为什么这样走。</strong> 现在的 attribution graph 更像是在解释固定 attention pattern 下的信息流，而不是解释 QK attention routing 是怎么形成的。Copying / induction 虽然整体结果不错，但它仍不一定说明“模型为什么会看向那个位置”。下一步需要引入 attention-aware QK attribution，把 value-flow attribution 和 attention-routing attribution 分开看。</li>
+<li><strong>不能只看 Pearson，要看 graph 是否真的强过简单 baseline。</strong> 有些 case 的 Pearson 很高，但 top-random gap 很小，例如 <code>copy_sequence_animals</code>。这说明 graph 内部排序可能看起来不错，但 random baseline 或 activation magnitude baseline 也能达到类似效果。后续主指标应同时看 rank correlation、top-random gap、top-activation gap 和 baseline advantage。</li>
+</ul>
+<h2>6. 当前局限与改进方案</h2>
+<p>当前 MVP 已经证明评测流程可行，但它还只是第一版小规模实验。主要限制和后续处理方式如下：</p>
+<table>
+<thead>
+<tr>
+<th>威胁</th>
+<th>当前风险</th>
+<th>缓解方案</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>样本规模较小</td>
+<td>主实验覆盖 40 个 case，追加 stress test 覆盖 20 个 case，但每组 feature 当前仍只取 <code>top_k=2</code>。</td>
+<td>每类扩展到 30–100 cases，将 <code>top_k</code> 提高到 10–20，并报告 bootstrap confidence interval。</td>
+</tr>
+<tr>
+<td>局部 node-level ablation</td>
+<td>只关掉单个 feature，可能低估由多个 features 共同完成的机制。</td>
+<td>扩展到 edge-level / path-level intervention，并测试 grouped feature ablation。</td>
+</tr>
+<tr>
+<td>单 token target</td>
+<td>MVP 只选择单 token target；多 token answer 和 sequence-level behavior 尚未覆盖。</td>
+<td>引入 sequence-level metrics，并处理 multi-token target 的 attribution aggregation。</td>
+</tr>
+<tr>
+<td>Graph pruning</td>
+<td><code>max_feature_nodes=100</code> 便于快速实验，但可能丢掉弱而关键的中间路径。</td>
+<td>在 GPU 环境下提高 graph budget，并比较不同 pruning threshold 下的结果稳定性。</td>
+</tr>
+<tr>
+<td>Baseline 尚不完整</td>
+<td>当前已有 random、bottom / middle、activation magnitude；activation × gradient、integrated gradients、edge-level baselines 尚未系统加入。</td>
+<td>引入 gradient-based baselines，并报告 baseline-adjusted faithfulness score。</td>
+</tr>
+<tr>
+<td>单一 model / feature space</td>
+<td>当前结果基于 Gemma-2-2B 与对应 transcoder features，尚不能直接推广。</td>
+<td>跨模型、跨 feature dictionary 复现实验，区分模型特定边界和 tracing 方法边界。</td>
+</tr>
+</tbody>
+</table>
+<p align="center"><em>表 11. 当前局限与改进方案。</em></p>
+<h2>7. 下一步计划</h2>
+<table>
+<thead>
+<tr>
+<th>阶段</th>
+<th>目标</th>
+<th>产出</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>第一阶段</td>
+<td>扩大 prompt set，每类任务至少 30–100 cases，并把 <code>top_k</code> 从 2 提高到 10–20。</td>
+<td>更稳定的 task-level 统计结果和 confidence interval。</td>
+</tr>
+<tr>
+<td>第二阶段</td>
+<td>强化 baseline：加入 activation × gradient、integrated gradients，并多次重复 random baseline。</td>
+<td>更可靠的 baseline-adjusted faithfulness score。</td>
+</tr>
+<tr>
+<td>第三阶段</td>
+<td>从单 feature 干预扩展到 edge / path / grouped feature 干预。</td>
+<td>看 graph 在 node、edge、path 三个层面是否都说得准。</td>
+</tr>
+<tr>
+<td>第四阶段</td>
+<td>系统测试强依赖 attention 的任务：copying、induction、IOI、multi-hop retrieval。</td>
+<td>找出 fixed-attention graph 最容易失败的任务。</td>
+</tr>
+<tr>
+<td>第五阶段</td>
+<td>引入 attention-aware QK attribution。</td>
+<td>分开评估 value-flow attribution 和 attention-routing attribution。</td>
+</tr>
+<tr>
+<td>第六阶段</td>
+<td>跨模型与跨 feature dictionary 复现实验。</td>
+<td>判断失败边界来自模型、feature space，还是 tracing 方法本身。</td>
+</tr>
+</tbody>
+</table>
+<p align="center"><em>表 12. 后续路线图。</em></p>
+<h2>8. 预期贡献</h2>
+<p>本项目的贡献可以概括为三点：</p>
+<ol>
+<li><strong>给 attribution graph 做“体检”</strong>：graph 说哪个 feature 重要，就真的去动哪个 feature，看模型输出是否变化。</li>
+<li><strong>加入更公平的 baseline 对照</strong>：不只看 Pearson / Spearman，还要看 top features 是否强过 random 和 activation magnitude baseline。</li>
+<li><strong>找出 graph 的适用边界</strong>：它在 factual / lexical continuation 上较可靠，但在 arithmetic / compositional reasoning 和潜在 attention-routing 任务上更不稳定。</li>
+</ol>
+<h2>9. 相关工作</h2>
+<p>本项目建立在 circuit tracing 和 sparse feature circuits 的基础上，但关注点不是“怎么画出 attribution graph”，而是“这张 graph 说的重要 feature，实验上是否真的重要”。也就是说，一个 graph 不仅要能展示 computation，还要能预测哪些 features 真正控制目标输出。</p>
+<table>
+<thead>
+<tr>
+<th>工作</th>
+<th>与本项目的关系</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><a href="https://transformer-circuits.pub/2025/attribution-graphs/methods.html">Circuit Tracing: Revealing Computational Graphs in Language Models</a></td>
+<td>提供 attribution graph 的核心构造方法。</td>
+</tr>
+<tr>
+<td><a href="https://transformer-circuits.pub/2025/attention-qk/index.html">Tracing Attention Computation Through Feature Interactions</a></td>
+<td>提供后续分析 attention routing 的方向。</td>
+</tr>
+<tr>
+<td><a href="https://arxiv.org/abs/2403.19647">Sparse Feature Circuits</a></td>
+<td>强调 feature-level circuit 需要用 intervention 验证。</td>
+</tr>
+<tr>
+<td><a href="https://arxiv.org/abs/2501.16496">Open Problems in Mechanistic Interpretability</a></td>
+<td>强调 mechanistic explanation 需要更严格的评测。</td>
+</tr>
+<tr>
+<td><a href="https://deepmindsafetyresearch.medium.com/negative-results-for-sparse-autoencoders-on-downstream-tasks-and-deprioritising-sae-research-6cadcfc125b9">Negative Results for Sparse Autoencoders on Downstream Tasks</a></td>
+<td>提醒 interpretability 方法必须和强 baseline 比较，负结果也有价值。</td>
+</tr>
+</tbody>
+</table>
+<p align="center"><em>表 13. 相关工作：本项目关注 graph 是否经得起干预实验验证。</em></p>
+<h2>附录 A. 完整 MVP Case 结果</h2>
+<details>
+<summary>展开查看 40 个 case 的完整结果</summary>
+<table>
+<thead>
+<tr>
+<th>类别</th>
+<th>Case</th>
+<th><span style="display:inline-block; min-width:520px; white-space:nowrap;">Prompt → Target</span></th>
+<th style="text-align:right">Pearson corr.</th>
+<th style="text-align:right">Spearman corr.</th>
+<th style="text-align:right">Top 平均 logit drop</th>
+<th style="text-align:right">Random 平均 logit drop</th>
+<th style="text-align:right"><span style="display:inline-block; min-width:120px; white-space:nowrap;">Top - random</span></th>
+<th>结论</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Factual recall</td>
+<td><code>france_capital</code></td>
+<td><span style="white-space:nowrap;"><code>The capital of France is</code> → <code> Paris</code></span></td>
+<td style="text-align:right">0.998</td>
+<td style="text-align:right">0.657</td>
+<td style="text-align:right">0.989</td>
+<td style="text-align:right">0.115</td>
+<td style="text-align:right">0.874</td>
+<td>成功：factual recall 中 top features 明显更具因果重要性。</td>
+</tr>
+<tr>
+<td>Factual recall</td>
+<td><code>texas_capital</code></td>
+<td><span style="white-space:nowrap;"><code>Dallas is in Texas. The capital of Texas is</code> → <code> Austin</code></span></td>
+<td style="text-align:right">0.998</td>
+<td style="text-align:right">0.886</td>
+<td style="text-align:right">1.953</td>
+<td style="text-align:right">0.249</td>
+<td style="text-align:right">1.704</td>
+<td>成功：factual recall 中 top features 明显更具因果重要性。</td>
+</tr>
+<tr>
+<td>Factual recall</td>
+<td><code>japan_capital</code></td>
+<td><span style="white-space:nowrap;"><code>The capital of Japan is</code> → <code> Tokyo</code></span></td>
+<td style="text-align:right">1.000</td>
+<td style="text-align:right">0.943</td>
+<td style="text-align:right">0.916</td>
+<td style="text-align:right">0.072</td>
+<td style="text-align:right">0.844</td>
+<td>成功：factual recall 中 top features 明显更具因果重要性。</td>
+</tr>
+<tr>
+<td>Factual recall</td>
+<td><code>germany_capital</code></td>
+<td><span style="white-space:nowrap;"><code>The capital of Germany is</code> → <code> Berlin</code></span></td>
+<td style="text-align:right">0.996</td>
+<td style="text-align:right">0.429</td>
+<td style="text-align:right">1.132</td>
+<td style="text-align:right">0.096</td>
+<td style="text-align:right">1.036</td>
+<td>成功：factual recall 中 top features 明显更具因果重要性。</td>
+</tr>
+<tr>
+<td>Factual recall</td>
+<td><code>italy_capital</code></td>
+<td><span style="white-space:nowrap;"><code>The capital of Italy is</code> → <code> Rome</code></span></td>
+<td style="text-align:right">0.991</td>
+<td style="text-align:right">0.943</td>
+<td style="text-align:right">0.754</td>
+<td style="text-align:right">0.254</td>
+<td style="text-align:right">0.500</td>
+<td>有正信号，但仍需更大规模验证。</td>
+</tr>
+<tr>
+<td>Factual recall</td>
+<td><code>canada_capital</code></td>
+<td><span style="white-space:nowrap;"><code>The capital of Canada is</code> → <code> Ottawa</code></span></td>
+<td style="text-align:right">0.956</td>
+<td style="text-align:right">0.829</td>
+<td style="text-align:right">1.157</td>
+<td style="text-align:right">0.478</td>
+<td style="text-align:right">0.678</td>
+<td>成功：factual recall 中 top features 明显更具因果重要性。</td>
+</tr>
+<tr>
+<td>Factual recall</td>
+<td><code>egypt_capital</code></td>
+<td><span style="white-space:nowrap;"><code>The capital of Egypt is</code> → <code> Cairo</code></span></td>
+<td style="text-align:right">0.997</td>
+<td style="text-align:right">0.600</td>
+<td style="text-align:right">1.168</td>
+<td style="text-align:right">0.147</td>
+<td style="text-align:right">1.021</td>
+<td>成功：factual recall 中 top features 明显更具因果重要性。</td>
+</tr>
+<tr>
+<td>Factual recall</td>
+<td><code>uk_capital</code></td>
+<td><span style="white-space:nowrap;"><code>The capital of the United Kingdom is</code> → <code> London</code></span></td>
+<td style="text-align:right">0.917</td>
+<td style="text-align:right">0.600</td>
+<td style="text-align:right">0.734</td>
+<td style="text-align:right">0.095</td>
+<td style="text-align:right">0.640</td>
+<td>成功：factual recall 中 top features 明显更具因果重要性。</td>
+</tr>
+<tr>
+<td>Factual recall</td>
+<td><code>california_capital</code></td>
+<td><span style="white-space:nowrap;"><code>Los Angeles is in California. The capital of California is</code> → <code> Sacramento</code></span></td>
+<td style="text-align:right">0.998</td>
+<td style="text-align:right">0.943</td>
+<td style="text-align:right">0.914</td>
+<td style="text-align:right">0.048</td>
+<td style="text-align:right">0.866</td>
+<td>成功：factual recall 中 top features 明显更具因果重要性。</td>
+</tr>
+<tr>
+<td>Factual recall</td>
+<td><code>france_largest_city</code></td>
+<td><span style="white-space:nowrap;"><code>The largest city in France is</code> → <code> Paris</code></span></td>
+<td style="text-align:right">0.998</td>
+<td style="text-align:right">0.486</td>
+<td style="text-align:right">1.514</td>
+<td style="text-align:right">0.660</td>
+<td style="text-align:right">0.854</td>
+<td>成功：factual recall 中 top features 明显更具因果重要性。</td>
+</tr>
+<tr>
+<td>Copying / induction</td>
+<td><code>copy_sequence_abc</code></td>
+<td><span style="white-space:nowrap;"><code>A B C. A B</code> → <code> C</code></span></td>
+<td style="text-align:right">0.997</td>
+<td style="text-align:right">0.829</td>
+<td style="text-align:right">1.090</td>
+<td style="text-align:right">0.696</td>
+<td style="text-align:right">0.394</td>
+<td>边界：有正相关，但 random baseline 也可能命中高影响 feature。</td>
+</tr>
+<tr>
+<td>Copying / induction</td>
+<td><code>copy_sequence_red_blue</code></td>
+<td><span style="white-space:nowrap;"><code>red blue green. red blue</code> → <code> green</code></span></td>
+<td style="text-align:right">0.995</td>
+<td style="text-align:right">0.771</td>
+<td style="text-align:right">1.131</td>
+<td style="text-align:right">0.081</td>
+<td style="text-align:right">1.050</td>
+<td>成功：copying/induction 中 top features 明显优于 random。</td>
+</tr>
+<tr>
+<td>Copying / induction</td>
+<td><code>copy_sequence_xyz</code></td>
+<td><span style="white-space:nowrap;"><code>X Y Z. X Y</code> → <code> Z</code></span></td>
+<td style="text-align:right">0.997</td>
+<td style="text-align:right">0.943</td>
+<td style="text-align:right">1.233</td>
+<td style="text-align:right">0.170</td>
+<td style="text-align:right">1.063</td>
+<td>成功：copying/induction 中 top features 明显优于 random。</td>
+</tr>
+<tr>
+<td>Copying / induction</td>
+<td><code>copy_sequence_numbers</code></td>
+<td><span style="white-space:nowrap;"><code>one two three. one two</code> → <code> three</code></span></td>
+<td style="text-align:right">1.000</td>
+<td style="text-align:right">0.943</td>
+<td style="text-align:right">1.217</td>
+<td style="text-align:right">0.316</td>
+<td style="text-align:right">0.901</td>
+<td>成功：copying/induction 中 top features 明显优于 random。</td>
+</tr>
+<tr>
+<td>Copying / induction</td>
+<td><code>copy_sequence_colors</code></td>
+<td><span style="white-space:nowrap;"><code>black white orange. black white</code> → <code> orange</code></span></td>
+<td style="text-align:right">0.996</td>
+<td style="text-align:right">0.486</td>
+<td style="text-align:right">0.636</td>
+<td style="text-align:right">0.037</td>
+<td style="text-align:right">0.599</td>
+<td>边界：有正相关，但 random baseline 也可能命中高影响 feature。</td>
+</tr>
+<tr>
+<td>Copying / induction</td>
+<td><code>copy_sequence_animals</code></td>
+<td><span style="white-space:nowrap;"><code>cats dogs birds. cats dogs</code> → <code> birds</code></span></td>
+<td style="text-align:right">0.999</td>
+<td style="text-align:right">0.886</td>
+<td style="text-align:right">0.588</td>
+<td style="text-align:right">0.588</td>
+<td style="text-align:right">0.000</td>
+<td>失败/强边界：top attribution features 几乎不优于 random。</td>
+</tr>
+<tr>
+<td>Copying / induction</td>
+<td><code>copy_sequence_names</code></td>
+<td><span style="white-space:nowrap;"><code>Alice Bob Carol. Alice Bob</code> → <code> Carol</code></span></td>
+<td style="text-align:right">0.996</td>
+<td style="text-align:right">1.000</td>
+<td style="text-align:right">0.248</td>
+<td style="text-align:right">0.040</td>
+<td style="text-align:right">0.209</td>
+<td>边界：有正相关，但 random baseline 也可能命中高影响 feature。</td>
+</tr>
+<tr>
+<td>Copying / induction</td>
+<td><code>copy_sequence_long_letters</code></td>
+<td><span style="white-space:nowrap;"><code>A B C D. A B C</code> → <code> D</code></span></td>
+<td style="text-align:right">0.995</td>
+<td style="text-align:right">0.600</td>
+<td style="text-align:right">1.113</td>
+<td style="text-align:right">0.604</td>
+<td style="text-align:right">0.510</td>
+<td>边界：有正相关，但 random baseline 也可能命中高影响 feature。</td>
+</tr>
+<tr>
+<td>Copying / induction</td>
+<td><code>copy_sequence_distractor</code></td>
+<td><span style="white-space:nowrap;"><code>red blue green. yellow red blue</code> → <code> green</code></span></td>
+<td style="text-align:right">0.995</td>
+<td style="text-align:right">0.600</td>
+<td style="text-align:right">0.869</td>
+<td style="text-align:right">0.106</td>
+<td style="text-align:right">0.763</td>
+<td>成功：copying/induction 中 top features 明显优于 random。</td>
+</tr>
+<tr>
+<td>Copying / induction</td>
+<td><code>copy_sequence_two_repeats</code></td>
+<td><span style="white-space:nowrap;"><code>A B C. D E F. A B</code> → <code> C</code></span></td>
+<td style="text-align:right">0.997</td>
+<td style="text-align:right">0.657</td>
+<td style="text-align:right">1.126</td>
+<td style="text-align:right">0.113</td>
+<td style="text-align:right">1.013</td>
+<td>成功：copying/induction 中 top features 明显优于 random。</td>
+</tr>
+<tr>
+<td>Simple reasoning</td>
+<td><code>state_reasoning_texas</code></td>
+<td><span style="white-space:nowrap;"><code>Dallas is in Texas. Austin is in</code> → <code> Texas</code></span></td>
+<td style="text-align:right">0.998</td>
+<td style="text-align:right">0.829</td>
+<td style="text-align:right">1.975</td>
+<td style="text-align:right">0.130</td>
+<td style="text-align:right">1.845</td>
+<td>成功：关系/词汇类简单推理中 graph 预测力较强。</td>
+</tr>
+<tr>
+<td>Simple reasoning</td>
+<td><code>arithmetic_reasoning_three</code></td>
+<td><span style="white-space:nowrap;"><code>John has two apples and buys one more. John has</code> → <code> three</code></span></td>
+<td style="text-align:right">0.531</td>
+<td style="text-align:right">0.657</td>
+<td style="text-align:right">0.140</td>
+<td style="text-align:right">0.049</td>
+<td style="text-align:right">0.091</td>
+<td>算术弱信号：相关性或 gap 偏低，数量组合机制不稳定。</td>
+</tr>
+<tr>
+<td>Simple reasoning</td>
+<td><code>arithmetic_reasoning_remaining</code></td>
+<td><span style="white-space:nowrap;"><code>Tom had five candies and gave two away. Tom has</code> → <code> three</code></span></td>
+<td style="text-align:right">-0.057</td>
+<td style="text-align:right">0.029</td>
+<td style="text-align:right">0.061</td>
+<td style="text-align:right">0.057</td>
+<td style="text-align:right">0.004</td>
+<td>失败/强边界：top attribution features 几乎不优于 random。</td>
+</tr>
+<tr>
+<td>Simple reasoning</td>
+<td><code>shared_country_france</code></td>
+<td><span style="white-space:nowrap;"><code>Paris is in France. Lyon is in</code> → <code> France</code></span></td>
+<td style="text-align:right">0.970</td>
+<td style="text-align:right">0.886</td>
+<td style="text-align:right">1.446</td>
+<td style="text-align:right">0.033</td>
+<td style="text-align:right">1.413</td>
+<td>成功：关系/词汇类简单推理中 graph 预测力较强。</td>
+</tr>
+<tr>
+<td>Simple reasoning</td>
+<td><code>shared_country_italy</code></td>
+<td><span style="white-space:nowrap;"><code>Rome is in Italy. Milan is in</code> → <code> Italy</code></span></td>
+<td style="text-align:right">0.996</td>
+<td style="text-align:right">0.771</td>
+<td style="text-align:right">1.178</td>
+<td style="text-align:right">0.257</td>
+<td style="text-align:right">0.921</td>
+<td>成功：关系/词汇类简单推理中 graph 预测力较强。</td>
+</tr>
+<tr>
+<td>Simple reasoning</td>
+<td><code>category_robin_bird</code></td>
+<td><span style="white-space:nowrap;"><code>A robin is a bird. A sparrow is a</code> → <code> bird</code></span></td>
+<td style="text-align:right">0.998</td>
+<td style="text-align:right">0.943</td>
+<td style="text-align:right">1.285</td>
+<td style="text-align:right">0.755</td>
+<td style="text-align:right">0.530</td>
+<td>弱信号：top-random gap 偏小，需要更大样本验证。</td>
+</tr>
+<tr>
+<td>Simple reasoning</td>
+<td><code>attribute_sky_ocean_blue</code></td>
+<td><span style="white-space:nowrap;"><code>The sky is blue. The ocean is also</code> → <code> blue</code></span></td>
+<td style="text-align:right">0.991</td>
+<td style="text-align:right">0.829</td>
+<td style="text-align:right">0.948</td>
+<td style="text-align:right">0.104</td>
+<td style="text-align:right">0.844</td>
+<td>成功：关系/词汇类简单推理中 graph 预测力较强。</td>
+</tr>
+<tr>
+<td>Simple reasoning</td>
+<td><code>weekday_after_monday</code></td>
+<td><span style="white-space:nowrap;"><code>Monday comes before Tuesday. The day after Monday is</code> → <code> Tuesday</code></span></td>
+<td style="text-align:right">0.999</td>
+<td style="text-align:right">0.943</td>
+<td style="text-align:right">1.000</td>
+<td style="text-align:right">0.109</td>
+<td style="text-align:right">0.891</td>
+<td>成功：关系/词汇类简单推理中 graph 预测力较强。</td>
+</tr>
+<tr>
+<td>Simple reasoning</td>
+<td><code>opposite_hot_cold</code></td>
+<td><span style="white-space:nowrap;"><code>Hot is the opposite of</code> → <code> cold</code></span></td>
+<td style="text-align:right">0.986</td>
+<td style="text-align:right">0.657</td>
+<td style="text-align:right">0.995</td>
+<td style="text-align:right">0.027</td>
+<td style="text-align:right">0.968</td>
+<td>成功：关系/词汇类简单推理中 graph 预测力较强。</td>
+</tr>
+<tr>
+<td>Simple reasoning</td>
+<td><code>arithmetic_reasoning_four</code></td>
+<td><span style="white-space:nowrap;"><code>Sue has one pen and buys three more. Sue has</code> → <code> four</code></span></td>
+<td style="text-align:right">0.764</td>
+<td style="text-align:right">0.600</td>
+<td style="text-align:right">0.216</td>
+<td style="text-align:right">0.061</td>
+<td style="text-align:right">0.155</td>
+<td>算术弱信号：相关性或 gap 偏低，数量组合机制不稳定。</td>
+</tr>
+<tr>
+<td>Complex reasoning</td>
+<td><code>syllogism_animals</code></td>
+<td><span style="white-space:nowrap;"><code>All cats are mammals. All mammals are animals. Therefore all cats are</code> → <code> animals</code></span></td>
+<td style="text-align:right">0.998</td>
+<td style="text-align:right">0.600</td>
+<td style="text-align:right">1.350</td>
+<td style="text-align:right">0.343</td>
+<td style="text-align:right">1.007</td>
+<td>成功：组合关系中仍有明显 top-vs-random gap。</td>
+</tr>
+<tr>
+<td>Complex reasoning</td>
+<td><code>transitive_oldest</code></td>
+<td><span style="white-space:nowrap;"><code>Alice is older than Bob. Bob is older than Carol. The oldest person is</code> → <code> Alice</code></span></td>
+<td style="text-align:right">0.887</td>
+<td style="text-align:right">0.943</td>
+<td style="text-align:right">0.437</td>
+<td style="text-align:right">0.042</td>
+<td style="text-align:right">0.395</td>
+<td>中等信号：相关性较高，但 effect size 弱于 factual recall。</td>
+</tr>
+<tr>
+<td>Complex reasoning</td>
+<td><code>nested_location_key</code></td>
+<td><span style="white-space:nowrap;"><code>The key is in the box. The box is in the drawer. The key is in the</code> → <code> drawer</code></span></td>
+<td style="text-align:right">0.894</td>
+<td style="text-align:right">0.600</td>
+<td style="text-align:right">0.174</td>
+<td style="text-align:right">0.022</td>
+<td style="text-align:right">0.152</td>
+<td>弱信号：组合关系可能只被部分 lexical/template signal 捕捉。</td>
+</tr>
+<tr>
+<td>Complex reasoning</td>
+<td><code>spatial_middle_cup</code></td>
+<td><span style="white-space:nowrap;"><code>The red cup is left of the blue cup. The green cup is right of the blue cup. The middle cup is</code> → <code> blue</code></span></td>
+<td style="text-align:right">0.997</td>
+<td style="text-align:right">1.000</td>
+<td style="text-align:right">0.792</td>
+<td style="text-align:right">0.530</td>
+<td style="text-align:right">0.261</td>
+<td>弱信号：组合关系可能只被部分 lexical/template signal 捕捉。</td>
+</tr>
+<tr>
+<td>Complex reasoning</td>
+<td><code>transitive_fastest_train</code></td>
+<td><span style="white-space:nowrap;"><code>A train is faster than a bike. A bike is faster than walking. The fastest is the</code> → <code> train</code></span></td>
+<td style="text-align:right">0.996</td>
+<td style="text-align:right">0.600</td>
+<td style="text-align:right">0.419</td>
+<td style="text-align:right">0.040</td>
+<td style="text-align:right">0.378</td>
+<td>中等信号：相关性较高，但 effect size 弱于 factual recall。</td>
+</tr>
+<tr>
+<td>Complex reasoning</td>
+<td><code>transitive_tallest_mary</code></td>
+<td><span style="white-space:nowrap;"><code>Mary is taller than John. John is taller than Sam. The tallest person is</code> → <code> Mary</code></span></td>
+<td style="text-align:right">0.993</td>
+<td style="text-align:right">0.657</td>
+<td style="text-align:right">0.838</td>
+<td style="text-align:right">0.063</td>
+<td style="text-align:right">0.775</td>
+<td>成功：组合关系中仍有明显 top-vs-random gap。</td>
+</tr>
+<tr>
+<td>Complex reasoning</td>
+<td><code>nested_location_ring</code></td>
+<td><span style="white-space:nowrap;"><code>The ring is in the bag. The bag is in the car. The ring is in the</code> → <code> car</code></span></td>
+<td style="text-align:right">0.995</td>
+<td style="text-align:right">0.657</td>
+<td style="text-align:right">0.756</td>
+<td style="text-align:right">0.035</td>
+<td style="text-align:right">0.721</td>
+<td>中等信号：相关性较高，但 effect size 弱于 factual recall。</td>
+</tr>
+<tr>
+<td>Complex reasoning</td>
+<td><code>spatial_leftmost_box</code></td>
+<td><span style="white-space:nowrap;"><code>The red box is left of the blue box. The blue box is left of the green box. The leftmost box is</code> → <code> red</code></span></td>
+<td style="text-align:right">0.988</td>
+<td style="text-align:right">0.886</td>
+<td style="text-align:right">0.908</td>
+<td style="text-align:right">0.077</td>
+<td style="text-align:right">0.831</td>
+<td>成功：组合关系中仍有明显 top-vs-random gap。</td>
+</tr>
+<tr>
+<td>Complex reasoning</td>
+<td><code>family_grandfather</code></td>
+<td><span style="white-space:nowrap;"><code>Bob is Alice's father. Carol is Bob's father. Carol is Alice's</code> → <code> grandfather</code></span></td>
+<td style="text-align:right">0.998</td>
+<td style="text-align:right">1.000</td>
+<td style="text-align:right">1.037</td>
+<td style="text-align:right">0.193</td>
+<td style="text-align:right">0.844</td>
+<td>成功：组合关系中仍有明显 top-vs-random gap。</td>
+</tr>
+<tr>
+<td>Complex reasoning</td>
+<td><code>conditional_rain_wet</code></td>
+<td><span style="white-space:nowrap;"><code>If it rains, the ground gets wet. It rains today. The ground gets</code> → <code> wet</code></span></td>
+<td style="text-align:right">0.997</td>
+<td style="text-align:right">0.943</td>
+<td style="text-align:right">0.961</td>
+<td style="text-align:right">0.056</td>
+<td style="text-align:right">0.905</td>
+<td>成功：组合关系中仍有明显 top-vs-random gap。</td>
+</tr>
+</tbody>
+</table>
+<p align="center"><em>表 A1. 完整 40-case MVP 结果：完整 case-level Pearson、Spearman、top 平均值、random 平均值和 top-random gap。</em></p>
+</details>
+<h2>附录 B. 追加 20-case Stress Test 结果</h2>
+<details>
+<summary>展开查看 20 个 stress case 的完整结果</summary>
+<table>
+<thead><tr><th>类别</th><th>Case</th><th style="text-align:right">Pearson corr.</th><th style="text-align:right">Spearman corr.</th><th style="text-align:right">Top 平均 logit drop</th><th style="text-align:right">Random 平均 logit drop</th><th style="text-align:right">Top - random</th><th style="text-align:right">Top - activation</th></tr></thead>
+<tbody>
+<tr><td>Negation / constraints</td><td><code>exclusive_choice_negation</code></td><td style="text-align:right">0.995</td><td style="text-align:right">0.943</td><td style="text-align:right">1.130</td><td style="text-align:right">0.228</td><td style="text-align:right">0.902</td><td style="text-align:right">1.044</td></tr>
+<tr><td>Distributed arithmetic</td><td><code>arithmetic_inventory_update</code></td><td style="text-align:right">0.988</td><td style="text-align:right">0.943</td><td style="text-align:right">0.557</td><td style="text-align:right">0.151</td><td style="text-align:right">0.406</td><td style="text-align:right">0.397</td></tr>
+<tr><td>Distributed arithmetic</td><td><code>arithmetic_time_duration</code></td><td style="text-align:right">0.639</td><td style="text-align:right">0.829</td><td style="text-align:right">1.448</td><td style="text-align:right">0.190</td><td style="text-align:right">1.258</td><td style="text-align:right">1.147</td></tr>
+<tr><td>Distributed arithmetic</td><td><code>arithmetic_entity_counting</code></td><td style="text-align:right">1.000</td><td style="text-align:right">1.000</td><td style="text-align:right">0.480</td><td style="text-align:right">0.133</td><td style="text-align:right">0.347</td><td style="text-align:right">0.396</td></tr>
+<tr><td>Distributed arithmetic</td><td><code>arithmetic_fraction_logic</code></td><td style="text-align:right">0.722</td><td style="text-align:right">0.371</td><td style="text-align:right">0.337</td><td style="text-align:right">0.350</td><td style="text-align:right">-0.013</td><td style="text-align:right">0.177</td></tr>
+<tr><td>Distributed arithmetic</td><td><code>arithmetic_age_comparison</code></td><td style="text-align:right">0.827</td><td style="text-align:right">0.829</td><td style="text-align:right">0.283</td><td style="text-align:right">0.200</td><td style="text-align:right">0.083</td><td style="text-align:right">0.196</td></tr>
+<tr><td>Compositional reasoning</td><td><code>spatial_relative_transfer</code></td><td style="text-align:right">0.983</td><td style="text-align:right">0.771</td><td style="text-align:right">1.179</td><td style="text-align:right">0.620</td><td style="text-align:right">0.559</td><td style="text-align:right">1.037</td></tr>
+<tr><td>Compositional reasoning</td><td><code>nested_containment_distractor</code></td><td style="text-align:right">0.964</td><td style="text-align:right">0.943</td><td style="text-align:right">1.011</td><td style="text-align:right">0.602</td><td style="text-align:right">0.409</td><td style="text-align:right">0.969</td></tr>
+<tr><td>Compositional reasoning</td><td><code>kinship_three_hop</code></td><td style="text-align:right">0.999</td><td style="text-align:right">0.943</td><td style="text-align:right">1.126</td><td style="text-align:right">0.227</td><td style="text-align:right">0.899</td><td style="text-align:right">0.826</td></tr>
+<tr><td>Compositional reasoning</td><td><code>temporal_event_ordering</code></td><td style="text-align:right">0.994</td><td style="text-align:right">0.829</td><td style="text-align:right">0.607</td><td style="text-align:right">0.117</td><td style="text-align:right">0.490</td><td style="text-align:right">0.542</td></tr>
+<tr><td>Compositional reasoning</td><td><code>logical_transitive_hierarchy</code></td><td style="text-align:right">0.995</td><td style="text-align:right">0.714</td><td style="text-align:right">1.001</td><td style="text-align:right">0.077</td><td style="text-align:right">0.924</td><td style="text-align:right">0.890</td></tr>
+<tr><td>Attention routing</td><td><code>induction_long_sequence_shifted</code></td><td style="text-align:right">0.967</td><td style="text-align:right">0.943</td><td style="text-align:right">0.513</td><td style="text-align:right">0.081</td><td style="text-align:right">0.432</td><td style="text-align:right">0.440</td></tr>
+<tr><td>Attention routing</td><td><code>copy_with_intervening_noise</code></td><td style="text-align:right">0.997</td><td style="text-align:right">0.943</td><td style="text-align:right">4.374</td><td style="text-align:right">1.383</td><td style="text-align:right">2.991</td><td style="text-align:right">2.110</td></tr>
+<tr><td>Attention routing</td><td><code>in_context_translation_mapping</code></td><td style="text-align:right">0.876</td><td style="text-align:right">0.943</td><td style="text-align:right">0.529</td><td style="text-align:right">0.036</td><td style="text-align:right">0.493</td><td style="text-align:right">0.399</td></tr>
+<tr><td>Attention routing</td><td><code>reverse_sequence_copy</code></td><td style="text-align:right">0.872</td><td style="text-align:right">0.429</td><td style="text-align:right">2.545</td><td style="text-align:right">1.334</td><td style="text-align:right">1.211</td><td style="text-align:right">2.291</td></tr>
+<tr><td>Attention routing</td><td><code>dynamic_variable_binding</code></td><td style="text-align:right">0.859</td><td style="text-align:right">0.943</td><td style="text-align:right">0.448</td><td style="text-align:right">0.077</td><td style="text-align:right">0.371</td><td style="text-align:right">0.325</td></tr>
+<tr><td>Negation / constraints</td><td><code>conditional_override_late</code></td><td style="text-align:right">0.991</td><td style="text-align:right">0.943</td><td style="text-align:right">0.471</td><td style="text-align:right">0.140</td><td style="text-align:right">0.331</td><td style="text-align:right">0.340</td></tr>
+<tr><td>Negation / constraints</td><td><code>attribute_cancellation</code></td><td style="text-align:right">0.994</td><td style="text-align:right">1.000</td><td style="text-align:right">1.038</td><td style="text-align:right">0.073</td><td style="text-align:right">0.964</td><td style="text-align:right">0.941</td></tr>
+<tr><td>Negation / constraints</td><td><code>role_reversal</code></td><td style="text-align:right">0.996</td><td style="text-align:right">0.714</td><td style="text-align:right">1.336</td><td style="text-align:right">0.189</td><td style="text-align:right">1.147</td><td style="text-align:right">1.166</td></tr>
+<tr><td>Negation / constraints</td><td><code>exception_handling</code></td><td style="text-align:right">0.986</td><td style="text-align:right">1.000</td><td style="text-align:right">0.619</td><td style="text-align:right">0.085</td><td style="text-align:right">0.534</td><td style="text-align:right">0.570</td></tr>
+</tbody>
+</table>
+<p align="center"><em>表 B1. 追加 20-case stress test 完整 case-level 结果，数据来源为 <code>attn-tracer/outputs/complex_20_cases/all_summaries.json</code>。</em></p>
+</details>
+
+    </div>
+    <script>
+        (function () {
+            const data = {
+                good: [
+                    {
+                        id: "texas_capital",
+                        label: "texas_capital",
+                        badge: "Good · factual recall",
+                        color: "#22c55e",
+                        prompt: "Dallas is in Texas. The capital of Texas is → Austin",
+                        note: "two-hop factual recall；top features 的 logit drop 明显高于 random 和 activation baseline。",
+                        metrics: { pearson: 0.998, spearman: 0.886, gap: 1.704, activationGap: 1.719 },
+                        points: [
+                            { g: "top", l: 20, p: 10, f: 15589, s: 0.088517, d: 2.622301, ld: 2.622301 },
+                            { g: "top", l: 24, p: 10, f: 6044, s: 0.049455, d: 1.282776, ld: -1.282776 },
+                            { g: "middle", l: 19, p: 10, f: 6810, s: 0.004291, d: 0.089235, ld: 0.089235 },
+                            { g: "middle", l: 25, p: 10, f: 4259, s: 0.004269, d: 0.119471, ld: 0.119471 },
+                            { g: "bottom", l: 25, p: 10, f: 583, s: 0.001619, d: 0.055031, ld: 0.055031 },
+                            { g: "bottom", l: 25, p: 10, f: 3938, s: 0.001523, d: 0.064095, ld: 0.064095 },
+                            { g: "random", l: 19, p: 10, f: 13890, s: 0.002977, d: 0.023840, ld: -0.023840 },
+                            { g: "random", l: 25, p: 10, f: 13300, s: 0.015694, d: 0.474180, ld: -0.474180 },
+                            { g: "activation_magnitude", l: 24, p: 10, f: 13277, s: 0.009253, d: 0.257454, ld: -0.257454 },
+                            { g: "activation_magnitude", l: 25, p: 10, f: 4717, s: 0.004421, d: 0.209412, ld: 0.209412 }
+                        ]
+                    },
+                    {
+                        id: "copy_sequence_red_blue",
+                        label: "copy_sequence_red_blue",
+                        badge: "Good · copying / induction",
+                        color: "#22c55e",
+                        prompt: "red blue green. red blue → green",
+                        note: "copying case；高 attribution feature 聚在右上角，score-effect alignment 清楚。",
+                        metrics: { pearson: 0.995, spearman: 0.771, gap: 1.050, activationGap: 0.910 },
+                        points: [
+                            { g: "top", l: 16, p: 3, f: 1056, s: 0.043396, d: 1.122583, ld: 1.122583 },
+                            { g: "top", l: 21, p: 6, f: 2942, s: 0.038526, d: 1.139105, ld: 1.139105 },
+                            { g: "middle", l: 1, p: 2, f: 793, s: 0.004969, d: 0.059464, ld: -0.059464 },
+                            { g: "middle", l: 19, p: 6, f: 4400, s: 0.004864, d: 0.082638, ld: -0.082638 },
+                            { g: "bottom", l: 23, p: 6, f: 7817, s: 0.002440, d: 0.069164, ld: 0.069164 },
+                            { g: "bottom", l: 25, p: 6, f: 323, s: 0.002338, d: 0.019781, ld: 0.019781 },
+                            { g: "random", l: 15, p: 3, f: 4132, s: 0.003912, d: 0.066748, ld: 0.066748 },
+                            { g: "random", l: 25, p: 6, f: 5604, s: 0.003187, d: 0.095301, ld: 0.095301 },
+                            { g: "activation_magnitude", l: 25, p: 6, f: 4717, s: 0.006870, d: 0.305962, ld: 0.305962 },
+                            { g: "activation_magnitude", l: 24, p: 6, f: 13277, s: 0.010578, d: 0.135052, ld: -0.135052 }
+                        ]
+                    },
+                    {
+                        id: "state_reasoning_texas",
+                        label: "state_reasoning_texas",
+                        badge: "Good · simple relation",
+                        color: "#22c55e",
+                        prompt: "Dallas is in Texas. Austin is in → Texas",
+                        note: "关系/模板类推理最强 case；top-random gap 最大。",
+                        metrics: { pearson: 0.998, spearman: 0.829, gap: 1.845, activationGap: 1.427 },
+                        points: [
+                            { g: "top", l: 20, p: 8, f: 15589, s: 0.091859, d: 2.796387, ld: 2.796387 },
+                            { g: "top", l: 20, p: 8, f: 5236, s: 0.042985, d: 1.152630, ld: 1.152630 },
+                            { g: "middle", l: 15, p: 8, f: 15954, s: 0.005724, d: 0.086889, ld: -0.086889 },
+                            { g: "middle", l: 18, p: 8, f: 15009, s: 0.005656, d: 0.065344, ld: 0.065344 },
+                            { g: "bottom", l: 24, p: 8, f: 6225, s: 0.002388, d: 0.056358, ld: 0.056358 },
+                            { g: "bottom", l: 25, p: 8, f: 15692, s: 0.002325, d: 0.086430, ld: 0.086430 },
+                            { g: "random", l: 20, p: 4, f: 13167, s: 0.002419, d: 0.073984, ld: 0.073984 },
+                            { g: "random", l: 25, p: 8, f: 14744, s: 0.006336, d: 0.185745, ld: -0.185745 },
+                            { g: "activation_magnitude", l: 25, p: 8, f: 4717, s: 0.015475, d: 0.803041, ld: 0.803041 },
+                            { g: "activation_magnitude", l: 24, p: 8, f: 13277, s: 0.009391, d: 0.291002, ld: -0.291002 }
+                        ]
+                    },
+                    {
+                        id: "family_grandfather",
+                        label: "family_grandfather",
+                        badge: "Good · complex relation",
+                        color: "#22c55e",
+                        prompt: "Bob is Alice's father. Carol is Bob's father. Carol is Alice's → grandfather",
+                        note: "two-hop kinship 仍有清晰正信号，但 activation baseline 中存在一个较强点。",
+                        metrics: { pearson: 0.998, spearman: 1.000, gap: 0.844, activationGap: 0.702 },
+                        points: [
+                            { g: "top", l: 20, p: 19, f: 2218, s: 0.000585, d: 1.078642, ld: 1.078642 },
+                            { g: "top", l: 19, p: 19, f: 15810, s: 0.000554, d: 0.995985, ld: 0.995985 },
+                            { g: "middle", l: 1, p: 6, f: 7251, s: 0.000084, d: 0.104767, ld: -0.104767 },
+                            { g: "middle", l: 18, p: 19, f: 12032, s: 0.000084, d: 0.096930, ld: 0.096930 },
+                            { g: "bottom", l: 25, p: 19, f: 3197, s: 0.000042, d: 0.094486, ld: 0.094486 },
+                            { g: "bottom", l: 19, p: 18, f: 1004, s: 0.000039, d: 0.066801, ld: 0.066801 },
+                            { g: "random", l: 17, p: 19, f: 759, s: 0.000172, d: 0.228004, ld: 0.228004 },
+                            { g: "random", l: 25, p: 19, f: 11279, s: 0.000065, d: 0.158278, ld: -0.158278 },
+                            { g: "activation_magnitude", l: 24, p: 19, f: 13277, s: 0.000294, d: 0.025799, ld: -0.025799 },
+                            { g: "activation_magnitude", l: 24, p: 19, f: 5999, s: 0.000047, d: 0.644547, ld: 0.644547 }
+                        ]
+                    },
+                    {
+                        id: "nested_containment_distractor",
+                        label: "nested_containment_distractor",
+                        badge: "Good · stress compositional",
+                        color: "#16a34a",
+                        prompt: "The diamond is inside the red box. The gold is inside the blue box. The red box is placed inside the safe. The diamond is currently in the → safe",
+                        note: "嵌套 containment 带 distractor；top features 明显压过 activation baseline，但 random 偶然命中一个 top feature，说明仍需看完整 baseline。",
+                        metrics: { pearson: 0.964, spearman: 0.943, gap: 0.409, activationGap: 0.969 },
+                        points: [
+                            { g: "top", l: 23, p: 31, f: 5104, s: 0.020336, d: 0.856611, ld: -0.856611 },
+                            { g: "top", l: 22, p: 31, f: 8403, s: 0.018039, d: 1.165173, ld: 1.165173 },
+                            { g: "middle", l: 18, p: 24, f: 2986, s: 0.001235, d: 0.045908, ld: 0.045908 },
+                            { g: "middle", l: 1, p: 24, f: 15646, s: 0.001165, d: 0.039885, ld: -0.039885 },
+                            { g: "bottom", l: 21, p: 31, f: 11877, s: 0.000740, d: 0.036219, ld: 0.036219 },
+                            { g: "bottom", l: 24, p: 31, f: 10662, s: 0.000702, d: 0.022551, ld: 0.022551 },
+                            { g: "random", l: 22, p: 31, f: 8403, s: 0.018039, d: 1.165173, ld: 1.165173 },
+                            { g: "random", l: 0, p: 4, f: 11338, s: 0.000891, d: 0.038773, ld: -0.038773 },
+                            { g: "activation_magnitude", l: 0, p: 4, f: 11338, s: 0.000891, d: 0.038773, ld: -0.038773 },
+                            { g: "activation_magnitude", l: 1, p: 7, f: 12696, s: 0.001157, d: 0.045185, ld: -0.045185 }
+                        ]
+                    },
+                    {
+                        id: "kinship_three_hop",
+                        label: "kinship_three_hop",
+                        badge: "Good · stress kinship",
+                        color: "#16a34a",
+                        prompt: "John is the father of Mary. Mary is the mother of Susan. Susan is the sister of Peter. John is Peter's → grandfather",
+                        note: "三跳亲属组合推理；Pearson 接近 1，top-random 与 top-activation gap 都很大。",
+                        metrics: { pearson: 0.999, spearman: 0.943, gap: 0.899, activationGap: 0.826 },
+                        points: [
+                            { g: "top", l: 20, p: 26, f: 2218, s: 0.005770, d: 1.337799, ld: 1.337799 },
+                            { g: "top", l: 24, p: 26, f: 10927, s: 0.004061, d: 0.913967, ld: -0.913967 },
+                            { g: "middle", l: 17, p: 26, f: 4477, s: 0.000703, d: 0.140562, ld: 0.140562 },
+                            { g: "middle", l: 20, p: 26, f: 11460, s: 0.000701, d: 0.154345, ld: 0.154345 },
+                            { g: "bottom", l: 24, p: 26, f: 9612, s: 0.000433, d: 0.109653, ld: 0.109653 },
+                            { g: "bottom", l: 25, p: 26, f: 11799, s: 0.000364, d: 0.012100, ld: -0.012100 },
+                            { g: "random", l: 24, p: 26, f: 13088, s: 0.001257, d: 0.304693, ld: -0.304693 },
+                            { g: "random", l: 15, p: 26, f: 793, s: 0.001188, d: 0.149300, ld: 0.149300 },
+                            { g: "activation_magnitude", l: 22, p: 26, f: 7921, s: 0.000623, d: 0.137264, ld: 0.137264 },
+                            { g: "activation_magnitude", l: 19, p: 26, f: 14743, s: 0.002497, d: 0.462994, ld: -0.462994 }
+                        ]
+                    },
+                    {
+                        id: "conditional_override_late",
+                        label: "conditional_override_late",
+                        badge: "Good · stress constraint",
+                        color: "#16a34a",
+                        prompt: "The system will automatically shut down at midnight and delete all files, unless the override switch is flipped. The administrator flipped the override switch. At midnight, the files will be → saved",
+                        note: "长上下文里的 late override / exception；top features 稳定强过 random 和 activation baseline。",
+                        metrics: { pearson: 0.991, spearman: 0.943, gap: 0.331, activationGap: 0.340 },
+                        points: [
+                            { g: "top", l: 21, p: 34, f: 8621, s: 0.001017, d: 0.547592, ld: 0.547592 },
+                            { g: "top", l: 25, p: 34, f: 11852, s: 0.000765, d: 0.394995, ld: -0.394995 },
+                            { g: "middle", l: 22, p: 34, f: 15552, s: 0.000328, d: 0.166784, ld: 0.166784 },
+                            { g: "middle", l: 16, p: 34, f: 9650, s: 0.000326, d: 0.113693, ld: 0.113693 },
+                            { g: "bottom", l: 23, p: 34, f: 7675, s: 0.000191, d: 0.096006, ld: 0.096006 },
+                            { g: "bottom", l: 25, p: 34, f: 10526, s: 0.000180, d: 0.110477, ld: -0.110477 },
+                            { g: "random", l: 24, p: 34, f: 6981, s: 0.000194, d: 0.130800, ld: -0.130800 },
+                            { g: "random", l: 0, p: 4, f: 14579, s: 0.000315, d: 0.149488, ld: 0.149488 },
+                            { g: "activation_magnitude", l: 0, p: 4, f: 14579, s: 0.000315, d: 0.149488, ld: 0.149488 },
+                            { g: "activation_magnitude", l: 4, p: 10, f: 9311, s: 0.000224, d: 0.113186, ld: 0.113186 }
+                        ]
+                    },
+                    {
+                        id: "japan_capital",
+                        label: "japan_capital",
+                        badge: "Good · factual recall",
+                        color: "#22c55e",
+                        prompt: "The capital of Japan is → Tokyo",
+                        note: "factual recall 中最干净的 alignment 之一，top 点集中在高 score / 高 effect 区域。",
+                        metrics: { pearson: 1.000, spearman: 0.943, gap: 0.844, activationGap: 0.834 },
+                        points: [
+                            { g: "top", l: 21, p: 5, f: 5943, s: 0.008905, d: 0.908394, ld: 0.908394 },
+                            { g: "top", l: 20, p: 5, f: 1194, s: 0.008886, d: 0.922943, ld: 0.922943 },
+                            { g: "middle", l: 19, p: 5, f: 13789, s: 0.001157, d: 0.086538, ld: 0.086538 },
+                            { g: "middle", l: 16, p: 5, f: 13497, s: 0.001126, d: 0.076584, ld: 0.076584 },
+                            { g: "bottom", l: 19, p: 5, f: 2550, s: 0.000523, d: 0.034731, ld: 0.034731 },
+                            { g: "bottom", l: 25, p: 5, f: 9975, s: 0.000447, d: 0.007347, ld: 0.007347 },
+                            { g: "random", l: 18, p: 5, f: 4432, s: 0.000789, d: 0.027966, ld: -0.027966 },
+                            { g: "random", l: 25, p: 5, f: 11867, s: 0.001071, d: 0.116077, ld: -0.116077 },
+                            { g: "activation_magnitude", l: 24, p: 5, f: 13277, s: 0.001872, d: 0.156858, ld: -0.156858 },
+                            { g: "activation_magnitude", l: 25, p: 5, f: 9975, s: 0.000447, d: 0.007347, ld: 0.007347 }
+                        ]
+                    }
+                ],
+                bad: [
+                    {
+                        id: "arithmetic_reasoning_remaining",
+                        label: "arithmetic_reasoning_remaining",
+                        badge: "Bad · arithmetic",
+                        color: "#ef4444",
+                        prompt: "Tom had five candies and gave two away. Tom has → three",
+                        note: "最清楚失败边界；高 score 点没有稳定带来更大 logit drop。",
+                        metrics: { pearson: -0.057, spearman: 0.029, gap: 0.004, activationGap: -0.041 },
+                        points: [
+                            { g: "top", l: 24, p: 11, f: 13277, s: 0.001901, d: 0.040684, ld: 0.040684 },
+                            { g: "top", l: 23, p: 11, f: 5188, s: 0.001589, d: 0.081182, ld: 0.081182 },
+                            { g: "middle", l: 24, p: 11, f: 13472, s: 0.000343, d: 0.075745, ld: 0.075745 },
+                            { g: "middle", l: 24, p: 11, f: 1339, s: 0.000340, d: 0.080770, ld: -0.080770 },
+                            { g: "bottom", l: 21, p: 3, f: 388, s: 0.000189, d: 0.043625, ld: 0.043625 },
+                            { g: "bottom", l: 25, p: 11, f: 15011, s: 0.000177, d: 0.049530, ld: -0.049530 },
+                            { g: "random", l: 19, p: 11, f: 7720, s: 0.000239, d: 0.030455, ld: 0.030455 },
+                            { g: "random", l: 25, p: 11, f: 10325, s: 0.000256, d: 0.084057, ld: 0.084057 },
+                            { g: "activation_magnitude", l: 24, p: 11, f: 13277, s: 0.001901, d: 0.040684, ld: 0.040684 },
+                            { g: "activation_magnitude", l: 25, p: 11, f: 4717, s: 0.000396, d: 0.163305, ld: 0.163305 }
+                        ]
+                    },
+                    {
+                        id: "arithmetic_reasoning_three",
+                        label: "arithmetic_reasoning_three",
+                        badge: "Weak · arithmetic",
+                        color: "#f97316",
+                        prompt: "John has two apples and buys one more. John has → three",
+                        note: "一个 top 点有效、另一个几乎无效；activation baseline 接近 top。",
+                        metrics: { pearson: 0.531, spearman: 0.657, gap: 0.091, activationGap: 0.000 },
+                        points: [
+                            { g: "top", l: 24, p: 11, f: 13277, s: 0.003779, d: 0.027105, ld: 0.027105 },
+                            { g: "top", l: 21, p: 11, f: 4376, s: 0.003241, d: 0.252634, ld: 0.252634 },
+                            { g: "middle", l: 25, p: 11, f: 112, s: 0.000822, d: 0.044552, ld: 0.044552 },
+                            { g: "middle", l: 16, p: 11, f: 4903, s: 0.000798, d: 0.028702, ld: -0.028702 },
+                            { g: "bottom", l: 24, p: 11, f: 14281, s: 0.000396, d: 0.024429, ld: 0.024429 },
+                            { g: "bottom", l: 24, p: 11, f: 7304, s: 0.000382, d: 0.024223, ld: -0.024223 },
+                            { g: "random", l: 20, p: 11, f: 12969, s: 0.000571, d: 0.026903, ld: 0.026903 },
+                            { g: "random", l: 25, p: 11, f: 9975, s: 0.000624, d: 0.070356, ld: -0.070356 },
+                            { g: "activation_magnitude", l: 24, p: 11, f: 13277, s: 0.003779, d: 0.027105, ld: 0.027105 },
+                            { g: "activation_magnitude", l: 24, p: 11, f: 5999, s: 0.001275, d: 0.252207, ld: 0.252207 }
+                        ]
+                    },
+                    {
+                        id: "arithmetic_reasoning_four",
+                        label: "arithmetic_reasoning_four",
+                        badge: "Weak · arithmetic",
+                        color: "#f97316",
+                        prompt: "Sue has one pen and buys three more. Sue has → four",
+                        note: "有一个强 top 点，但整体 gap 小，数量组合机制不稳定。",
+                        metrics: { pearson: 0.764, spearman: 0.600, gap: 0.155, activationGap: 0.031 },
+                        points: [
+                            { g: "top", l: 25, p: 11, f: 1953, s: 0.001246, d: 0.382290, ld: -0.382290 },
+                            { g: "top", l: 24, p: 11, f: 13277, s: 0.001012, d: 0.049210, ld: -0.049210 },
+                            { g: "middle", l: 6, p: 11, f: 7036, s: 0.000250, d: 0.018438, ld: 0.018438 },
+                            { g: "middle", l: 14, p: 11, f: 14163, s: 0.000246, d: 0.032068, ld: -0.032068 },
+                            { g: "bottom", l: 24, p: 11, f: 12843, s: 0.000126, d: 0.063869, ld: -0.063869 },
+                            { g: "bottom", l: 25, p: 11, f: 2511, s: 0.000115, d: 0.000856, ld: -0.000856 },
+                            { g: "random", l: 19, p: 11, f: 5533, s: 0.000170, d: 0.042744, ld: 0.042744 },
+                            { g: "random", l: 25, p: 11, f: 9975, s: 0.000175, d: 0.078709, ld: -0.078709 },
+                            { g: "activation_magnitude", l: 24, p: 11, f: 13277, s: 0.001012, d: 0.049210, ld: -0.049210 },
+                            { g: "activation_magnitude", l: 24, p: 11, f: 5999, s: 0.000296, d: 0.319622, ld: 0.319622 }
+                        ]
+                    },
+                    {
+                        id: "arithmetic_fraction_logic",
+                        label: "arithmetic_fraction_logic",
+                        badge: "Weak · stress arithmetic",
+                        color: "#f97316",
+                        prompt: "Half of the 10 students passed the exam. Therefore, the number of students who passed is → five",
+                        note: "分数/数量组合边界；Pearson 仍为正，但 top-random gap 为负，random baseline 偶然更强。",
+                        metrics: { pearson: 0.722, spearman: 0.371, gap: -0.013, activationGap: 0.177 },
+                        points: [
+                            { g: "top", l: 24, p: 20, f: 4184, s: 0.000017, d: 0.632467, ld: 0.632467 },
+                            { g: "top", l: 24, p: 20, f: 13277, s: 0.000012, d: 0.040668, ld: -0.040668 },
+                            { g: "middle", l: 24, p: 20, f: 9404, s: 0.000005, d: 0.154573, ld: 0.154573 },
+                            { g: "middle", l: 22, p: 20, f: 7914, s: 0.000005, d: 0.152208, ld: 0.152208 },
+                            { g: "bottom", l: 25, p: 20, f: 112, s: 0.000003, d: 0.059315, ld: 0.059315 },
+                            { g: "bottom", l: 24, p: 20, f: 14281, s: 0.000003, d: 0.080246, ld: 0.080246 },
+                            { g: "random", l: 24, p: 20, f: 5999, s: 0.000004, d: 0.490608, ld: 0.490608 },
+                            { g: "random", l: 15, p: 20, f: 5609, s: 0.000009, d: 0.209061, ld: 0.209061 },
+                            { g: "activation_magnitude", l: 14, p: 20, f: 5044, s: 0.000004, d: 0.137180, ld: -0.137180 },
+                            { g: "activation_magnitude", l: 23, p: 20, f: 11977, s: 0.000005, d: 0.181574, ld: 0.181574 }
+                        ]
+                    },
+                    {
+                        id: "reverse_sequence_copy",
+                        label: "reverse_sequence_copy",
+                        badge: "Weak · attention routing",
+                        color: "#f97316",
+                        prompt: "The sequence is A B C. The reverse of the sequence is C B → A",
+                        note: "反向 copy 需要更强 attention routing；top-random gap 为正但 Spearman 很低，排序稳定性不足。",
+                        metrics: { pearson: 0.872, spearman: 0.429, gap: 1.211, activationGap: 2.291 },
+                        points: [
+                            { g: "top", l: 21, p: 16, f: 8824, s: 0.000010, d: 1.978366, ld: -1.978366 },
+                            { g: "top", l: 25, p: 16, f: 5714, s: 0.000007, d: 3.112237, ld: -3.112237 },
+                            { g: "middle", l: 24, p: 16, f: 1857, s: 0.000001, d: 0.201628, ld: 0.201628 },
+                            { g: "middle", l: 22, p: 16, f: 4956, s: 0.000001, d: 0.347847, ld: -0.347847 },
+                            { g: "bottom", l: 24, p: 15, f: 15961, s: 0.000001, d: 0.248358, ld: 0.248358 },
+                            { g: "bottom", l: 25, p: 16, f: 4717, s: 0.000000, d: 0.460402, ld: 0.460402 },
+                            { g: "random", l: 24, p: 16, f: 14176, s: 0.000004, d: 2.399110, ld: -2.399110 },
+                            { g: "random", l: 16, p: 6, f: 10031, s: 0.000001, d: 0.269270, ld: 0.269270 },
+                            { g: "activation_magnitude", l: 16, p: 6, f: 10031, s: 0.000001, d: 0.269270, ld: 0.269270 },
+                            { g: "activation_magnitude", l: 19, p: 16, f: 8824, s: 0.000003, d: 0.240327, ld: -0.240327 }
+                        ]
+                    },
+                    {
+                        id: "copy_sequence_animals",
+                        label: "copy_sequence_animals",
+                        badge: "Boundary · random catches up",
+                        color: "#f97316",
+                        prompt: "cats dogs birds. cats dogs → birds",
+                        note: "Pearson 很高，但 random 恰好命中同一批关键 feature，top-random gap 为 0。",
+                        metrics: { pearson: 0.999, spearman: 0.886, gap: 0.000, activationGap: 0.396 },
+                        points: [
+                            { g: "top", l: 25, p: 6, f: 11801, s: 0.032395, d: 0.827892, ld: -0.827892 },
+                            { g: "top", l: 15, p: 3, f: 5131, s: 0.014821, d: 0.348280, ld: 0.348280 },
+                            { g: "middle", l: 16, p: 6, f: 3708, s: 0.003327, d: 0.064085, ld: -0.064085 },
+                            { g: "middle", l: 2, p: 2, f: 9041, s: 0.003188, d: 0.070408, ld: 0.070408 },
+                            { g: "bottom", l: 23, p: 3, f: 1183, s: 0.001557, d: 0.039255, ld: 0.039255 },
+                            { g: "bottom", l: 22, p: 6, f: 2673, s: 0.001543, d: 0.042332, ld: 0.042332 },
+                            { g: "random", l: 15, p: 3, f: 5131, s: 0.014821, d: 0.348280, ld: 0.348280 },
+                            { g: "random", l: 25, p: 6, f: 11801, s: 0.032395, d: 0.827892, ld: -0.827892 },
+                            { g: "activation_magnitude", l: 25, p: 6, f: 4717, s: 0.008904, d: 0.336224, ld: 0.336224 },
+                            { g: "activation_magnitude", l: 24, p: 6, f: 13277, s: 0.013542, d: 0.048075, ld: -0.048075 }
+                        ]
+                    },
+                    {
+                        id: "nested_location_key",
+                        label: "nested_location_key",
+                        badge: "Weak · complex reasoning",
+                        color: "#f97316",
+                        prompt: "The key is in the box. The box is in the drawer. The key is in the → drawer",
+                        note: "有正相关，但 top 相对 random / activation 的优势很小。",
+                        metrics: { pearson: 0.894, spearman: 0.600, gap: 0.152, activationGap: 0.082 },
+                        points: [
+                            { g: "top", l: 25, p: 19, f: 255, s: 0.008067, d: 0.279572, ld: -0.279572 },
+                            { g: "top", l: 24, p: 19, f: 13277, s: 0.005567, d: 0.068058, ld: -0.068058 },
+                            { g: "middle", l: 23, p: 19, f: 12140, s: 0.001242, d: 0.018976, ld: 0.018976 },
+                            { g: "middle", l: 0, p: 13, f: 9026, s: 0.001232, d: 0.030890, ld: 0.030890 },
+                            { g: "bottom", l: 25, p: 19, f: 5286, s: 0.000647, d: 0.021832, ld: -0.021832 },
+                            { g: "bottom", l: 25, p: 19, f: 186, s: 0.000646, d: 0.023685, ld: -0.023685 },
+                            { g: "random", l: 18, p: 19, f: 7874, s: 0.001073, d: 0.041870, ld: 0.041870 },
+                            { g: "random", l: 25, p: 19, f: 13416, s: 0.000647, d: 0.001993, ld: 0.001993 },
+                            { g: "activation_magnitude", l: 24, p: 19, f: 13277, s: 0.005567, d: 0.068058, ld: -0.068058 },
+                            { g: "activation_magnitude", l: 18, p: 6, f: 9109, s: 0.003550, d: 0.115442, ld: 0.115442 }
+                        ]
+                    }
+                ]
+            };
+
+            const colors = {
+                top: "#e11d48",
+                middle: "#f59e0b",
+                bottom: "#2563eb",
+                random: "#64748b",
+                activation_magnitude: "#14b8a6"
+            };
+
+            const labels = {
+                top: "top attribution",
+                middle: "middle",
+                bottom: "bottom",
+                random: "random",
+                activation_magnitude: "activation magnitude"
+            };
+
+            const root = document.getElementById("figure4InteractiveScatter");
+            if (!root) return;
+
+            const svg = document.getElementById("figure4ScatterSvg");
+            const select = document.getElementById("figure4CaseSelect");
+            const summary = document.getElementById("figure4Summary");
+            const tooltip = document.getElementById("figure4Tooltip");
+            const panel = document.getElementById("figure4FeaturePanel");
+            const filterButtons = Array.from(root.querySelectorAll("[data-figure4-filter]"));
+            let filter = "good";
+            let activeCase = data.good[0];
+            let selectedPointIndex = null;
+
+            function fmt(value, digits) {
+                return Number(value).toFixed(digits);
+            }
+
+            function populateSelect() {
+                select.innerHTML = "";
+                data[filter].forEach((item) => {
+                    const option = document.createElement("option");
+                    option.value = item.id;
+                    option.textContent = item.label;
+                    select.appendChild(option);
+                });
+                activeCase = data[filter][0];
+                select.value = activeCase.id;
+                selectedPointIndex = null;
+                render();
+            }
+
+            function renderSummary() {
+                summary.style.setProperty("--case-color", activeCase.color);
+                summary.innerHTML = `
+                    <div class="case-title-row">
+                        <h4>${activeCase.label}</h4>
+                        <span class="case-badge">${activeCase.badge}</span>
+                    </div>
+                    <div><strong>Prompt → Target:</strong> <code>${activeCase.prompt}</code></div>
+                    <div class="case-metrics">
+                        <div class="metric-pill"><span>Pearson</span><strong>${fmt(activeCase.metrics.pearson, 3)}</strong></div>
+                        <div class="metric-pill"><span>Spearman</span><strong>${fmt(activeCase.metrics.spearman, 3)}</strong></div>
+                        <div class="metric-pill"><span>Top-random gap</span><strong>${fmt(activeCase.metrics.gap, 3)}</strong></div>
+                        <div class="metric-pill"><span>Top-activation gap</span><strong>${fmt(activeCase.metrics.activationGap, 3)}</strong></div>
+                    </div>
+                    <div>${activeCase.note}</div>
+                `;
+            }
+
+            function regression(points) {
+                const n = points.length;
+                const sx = points.reduce((acc, p) => acc + p.s, 0);
+                const sy = points.reduce((acc, p) => acc + p.d, 0);
+                const sxx = points.reduce((acc, p) => acc + p.s * p.s, 0);
+                const sxy = points.reduce((acc, p) => acc + p.s * p.d, 0);
+                const denom = n * sxx - sx * sx;
+                if (Math.abs(denom) < 1e-12) return { slope: 0, intercept: sy / n };
+                const slope = (n * sxy - sx * sy) / denom;
+                return { slope, intercept: (sy - slope * sx) / n };
+            }
+
+            function pointInfo(point) {
+                return `<strong>${labels[point.g]}</strong>
+                    L${point.l} / pos ${point.p} / F${point.f}<br>
+                    abs(score): ${fmt(point.s, 6)}<br>
+                    abs(logit drop): ${fmt(point.d, 3)}<br>
+                    signed logit drop: ${fmt(point.ld, 3)}`;
+            }
+
+            function updatePanel(point) {
+                panel.innerHTML = point
+                    ? `当前选中：${pointInfo(point)}`
+                    : "点击任意圆点查看该 feature 的 layer、position、feature index、score 和干预后的 logit drop。";
+            }
+
+            function render() {
+                renderSummary();
+                tooltip.classList.remove("visible");
+
+                const width = 760;
+                const height = 460;
+                const margin = { left: 76, right: 32, top: 34, bottom: 66 };
+                const plotW = width - margin.left - margin.right;
+                const plotH = height - margin.top - margin.bottom;
+                const points = activeCase.points;
+                updatePanel(selectedPointIndex !== null ? points[selectedPointIndex] : null);
+                const maxX = Math.max(...points.map((p) => p.s)) * 1.08 || 1;
+                const maxY = Math.max(...points.map((p) => p.d)) * 1.12 || 1;
+                const x = (v) => margin.left + (v / maxX) * plotW;
+                const y = (v) => margin.top + plotH - (v / maxY) * plotH;
+                const reg = regression(points);
+                const regY0 = Math.max(0, reg.intercept);
+                const regY1 = Math.max(0, reg.slope * maxX + reg.intercept);
+
+                svg.innerHTML = "";
+                const ns = "http://www.w3.org/2000/svg";
+                const add = (name, attrs, parent = svg) => {
+                    const el = document.createElementNS(ns, name);
+                    Object.entries(attrs).forEach(([key, value]) => el.setAttribute(key, value));
+                    parent.appendChild(el);
+                    return el;
+                };
+
+                add("rect", { x: 1, y: 1, width: width - 2, height: height - 2, rx: 18, fill: "#fff" });
+                for (let i = 0; i <= 4; i++) {
+                    const gx = margin.left + (plotW * i) / 4;
+                    const gy = margin.top + (plotH * i) / 4;
+                    add("line", { x1: gx, y1: margin.top, x2: gx, y2: margin.top + plotH, stroke: "#e2e8f0" });
+                    add("line", { x1: margin.left, y1: gy, x2: margin.left + plotW, y2: gy, stroke: "#e2e8f0" });
+                    add("text", { x: gx, y: margin.top + plotH + 22, "text-anchor": "middle", fill: "#64748b", "font-size": 12 }, svg).textContent = fmt((maxX * i) / 4, maxX < 0.01 ? 4 : 3);
+                    add("text", { x: margin.left - 12, y: margin.top + plotH - (plotH * i) / 4 + 4, "text-anchor": "end", fill: "#64748b", "font-size": 12 }, svg).textContent = fmt((maxY * i) / 4, maxY < 0.5 ? 2 : 1);
+                }
+                add("line", { x1: margin.left, y1: margin.top + plotH, x2: margin.left + plotW, y2: margin.top + plotH, stroke: "#334155", "stroke-width": 1.2 });
+                add("line", { x1: margin.left, y1: margin.top, x2: margin.left, y2: margin.top + plotH, stroke: "#334155", "stroke-width": 1.2 });
+                add("line", { x1: x(0), y1: y(regY0), x2: x(maxX), y2: y(regY1), stroke: activeCase.color, "stroke-width": 2.5, "stroke-dasharray": "6 5", opacity: 0.8 });
+                add("text", { x: margin.left + plotW / 2, y: height - 18, "text-anchor": "middle", fill: "#475569", "font-size": 14 }, svg).textContent = "abs(attribution score)";
+                add("text", { x: 18, y: margin.top + plotH / 2, transform: `rotate(-90 18 ${margin.top + plotH / 2})`, "text-anchor": "middle", fill: "#475569", "font-size": 14 }, svg).textContent = "abs(logit drop)";
+
+                const jitter = [-7, 7, -5, 5, -3, 3, -8, 8, -4, 4];
+                points.forEach((point, index) => {
+                    const cx = x(point.s) + (jitter[index % jitter.length] * Math.min(1, 0.5 / points.length));
+                    const cy = y(point.d) + jitter[(index + 3) % jitter.length] * 0.24;
+                    const circle = add("circle", {
+                        class: selectedPointIndex === index ? "scatter-point selected" : "scatter-point",
+                        cx, cy, r: selectedPointIndex === index ? 8.5 : 6.5,
+                        fill: colors[point.g],
+                        stroke: "#fff",
+                        "stroke-width": selectedPointIndex === index ? 3 : 2,
+                        opacity: point.g === "top" ? 0.98 : 0.86,
+                        tabindex: 0,
+                        role: "button",
+                        "aria-label": `${labels[point.g]} L${point.l} feature ${point.f}`
+                    });
+
+                    const showTooltip = () => {
+                        tooltip.innerHTML = pointInfo(point);
+                        tooltip.style.left = `${(cx / width) * 100}%`;
+                        tooltip.style.top = `${(cy / height) * 100}%`;
+                        tooltip.classList.add("visible");
+                    };
+                    circle.addEventListener("mouseenter", showTooltip);
+                    circle.addEventListener("focus", showTooltip);
+                    circle.addEventListener("mouseleave", () => tooltip.classList.remove("visible"));
+                    circle.addEventListener("blur", () => tooltip.classList.remove("visible"));
+                    circle.addEventListener("click", () => {
+                        selectedPointIndex = index;
+                        updatePanel(point);
+                        render();
+                    });
+                    circle.addEventListener("keydown", (event) => {
+                        if (event.key === "Enter" || event.key === " ") {
+                            event.preventDefault();
+                            selectedPointIndex = index;
+                            updatePanel(point);
+                            render();
+                        }
+                    });
+                });
+            }
+
+            filterButtons.forEach((button) => {
+                button.addEventListener("click", () => {
+                    filter = button.dataset.figure4Filter;
+                    filterButtons.forEach((b) => b.classList.toggle("active", b === button));
+                    populateSelect();
+                });
+            });
+
+            select.addEventListener("change", () => {
+                activeCase = data[filter].find((item) => item.id === select.value) || data[filter][0];
+                selectedPointIndex = null;
+                render();
+            });
+
+            populateSelect();
+        })();
+
+        (function initFigure5GraphSelector() {
+            const select = document.getElementById("figure5GraphSelect");
+            if (!select) return;
+
+            const card = document.getElementById("figure5GraphCard");
+            const tag = document.getElementById("figure5GraphTag");
+            const title = document.getElementById("figure5GraphTitle");
+            const prompt = document.getElementById("figure5GraphPrompt");
+            const frame = document.getElementById("figure5GraphFrame");
+            const openLink = document.getElementById("figure5OpenLink");
+            const fallbackLink = document.getElementById("figure5FallbackLink");
+
+            function codePrompt(text) {
+                const [left, right] = text.split(" → ");
+                return `<code>${left}</code> → <code>${right}</code>。`;
+            }
+
+            function renderSelectedGraph() {
+                const option = select.selectedOptions[0];
+                if (!option) return;
+
+                const url = option.dataset.url;
+                card.style.setProperty("--graph-color", option.dataset.color || "#2563eb");
+                tag.textContent = option.dataset.tag;
+                const [caseName, description] = option.dataset.title.split("：");
+                title.innerHTML = `<code>${caseName}</code>：${description}`;
+                prompt.innerHTML = codePrompt(option.dataset.prompt);
+                frame.src = url;
+                frame.title = `Original circuit-tracer attribution graph: ${caseName}`;
+                openLink.href = url;
+                fallbackLink.href = url;
+                fallbackLink.textContent = option.dataset.linkLabel;
+            }
+
+            select.addEventListener("change", renderSelectedGraph);
+            renderSelectedGraph();
+        })();
+    </script>
+</body>
+</html>
