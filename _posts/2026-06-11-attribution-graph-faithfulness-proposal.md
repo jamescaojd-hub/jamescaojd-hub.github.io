@@ -5,6 +5,7 @@ date: 2026-06-11 10:00:00
 description: "A research proposal on evaluating attribution graph faithfulness with causal intervention experiments."
 tags: [interpretability, attribution-graphs, circuit-tracing, llm]
 categories: [machine-learning-systems]
+external_url: /assets/html/proposal.html
 ---
 
 下面嵌入的是完整的 proposal 文档，用于评估 attribution graph 的 faithfulness。如果 iframe 无法加载，可以
