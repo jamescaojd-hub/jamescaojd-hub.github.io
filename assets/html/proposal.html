@@ -788,30 +788,21 @@
 <tbody>
 <tr>
 <td>
-  <details class="img-details" open>
-    <summary><img src="../img/proposal/RGB_final_green.png" alt="RGB final green attribution graph" width="260"></summary>
-    <div class="img-full"><img src="../img/proposal/RGB_final_green.png" alt="RGB final green attribution graph" /></div>
-  </details>
+  <div class="img-full"><img src="../img/proposal/RGB_final_green.png" alt="RGB final green attribution graph" /></div>
 </td>
 <td>最终输出视图：展示目标 token <code>green</code> 以及对输出 logit 贡献最大的 input features。</td>
 <td>放在最前作为定性成功概览，直观说明 graph 在 copying case 中定位到了支持 <code>green</code> 的关键路径。</td>
 </tr>
 <tr>
 <td>
-  <details class="img-details" open>
-    <summary><img src="../img/proposal/RGB_L16_1056.png" alt="RGB layer 16 feature 1056" width="260"></summary>
-    <div class="img-full"><img src="../img/proposal/RGB_L16_1056.png" alt="RGB layer 16 feature 1056" /></div>
-  </details>
+  <div class="img-full"><img src="../img/proposal/RGB_L16_1056.png" alt="RGB layer 16 feature 1056" /></div>
 </td>
 <td>中间层 feature：<code>L16/F1056 @ token 'green'</code>，位于中层并向后续特征传播。</td>
 <td>展示 graph 中一个高影响中间节点；该节点表示一种局部英文结构，起到承上启下作用，并增强绿色输入信号。</td>
 </tr>
 <tr>
 <td>
-  <details class="img-details" open>
-    <summary><img src="../img/proposal/RGB_L21_2942.png" alt="RGB layer 21 feature 2942" width="260"></summary>
-    <div class="img-full"><img src="../img/proposal/RGB_L21_2942.png" alt="RGB layer 21 feature 2942" /></div>
-  </details>
+  <div class="img-full"><img src="../img/proposal/RGB_L21_2942.png" alt="RGB layer 21 feature 2942" /></div>
 </td>
 <td>后期 feature：<code>L21/F2942 @ token 'blue'</code>，靠近输出端并连接到 <code>green</code> prediction。</td>
 <td>该 feature 包含 greater than、lower than、more than 等含义，有明显顺序倾向，和该 case 的顺序推理目标吻合。</td>
