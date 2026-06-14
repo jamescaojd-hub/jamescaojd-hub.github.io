@@ -1,0 +1,1 @@
+const config={requirePragma:!0};module.exports=config;

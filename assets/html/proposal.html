@@ -966,16 +966,6 @@
   <summary><em>图 4. 交互式成功与失败 scatter：可切换多个 good / bad case，点击点查看 feature 细节。</em></summary>
   <div class="figure-body">
     <div class="interactive-scatter" id="figure4InteractiveScatter">
-      <div class="scatter-toolbar">
-        <div class="case-filter" role="group" aria-label="选择 case 类型">
-          <button type="button" class="active" data-figure4-filter="good">Good / stress-good cases</button>
-          <button type="button" data-figure4-filter="bad">Bad / stress-weak cases</button>
-        </div>
-        <div class="case-picker">
-          <label for="figure4CaseSelect">View case</label>
-          <select id="figure4CaseSelect" aria-label="选择要查看的 case"></select>
-        </div>
-      </div>
       <div class="scatter-summary-card" id="figure4Summary"></div>
       <div class="scatter-shell">
         <svg id="figure4ScatterSvg" viewBox="0 0 760 460" role="img" aria-label="score-vs-effect interactive scatter"></svg>
@@ -993,43 +983,41 @@
   </div>
 </details>
 <details class="figure-details" open>
-  <summary><em>图 5. Good / bad case 的原始交互式 attribution graph：使用 circuit-tracer 官方 frontend。</em></summary>
+  <summary><em>图 5. 各 prompt 的原始交互式 attribution graph：嵌入 circuit-tracer 官方 frontend 的本站静态托管版。</em></summary>
   <div class="figure-body">
     <div class="original-graph-viewer" id="figure5GraphViewer">
       <div class="graph-selector-bar">
         <div class="graph-case-picker">
-          <label for="figure5GraphSelect">View attribution graph</label>
-          <select id="figure5GraphSelect" aria-label="选择要展示的 attribution graph">
-            <option value="copy-sequence-red-blue-success"
-              data-url="http://localhost:8041/?slug=copy-sequence-red-blue-success&amp;pruningThreshold=0.8&amp;clickedId=27_4433_6"
-              data-color="#22c55e"
-              data-tag="Good attribution graph"
-              data-title="copy_sequence_red_blue：copying / induction 成功案例"
-              data-prompt="red blue green. red blue → green"
-              data-link-label="good case graph">copy_sequence_red_blue · good case</option>
-            <option value="arithmetic-reasoning-remaining"
-              data-url="http://localhost:8042/?slug=arithmetic-reasoning-remaining&amp;pruningThreshold=0.8&amp;clickedId=27_2149_11"
-              data-color="#ef4444"
-              data-tag="Bad attribution graph"
-              data-title="arithmetic_reasoning_remaining：算术失败案例"
-              data-prompt="Tom had five candies and gave two away. Tom has → three"
-              data-link-label="bad case graph">arithmetic_reasoning_remaining · bad case</option>
+          <label for="figure5GraphSelect">Prompt</label>
+          <select id="figure5GraphSelect" aria-label="选择要展示的 prompt">
+            <option value="copy-sequence-red-blue-success" data-url="../circuit-tracer/index.html?slug=copy-sequence-red-blue-success&amp;pruningThreshold=0.8&amp;clickedId=27_4433_6">red blue green. red blue</option>
+            <option value="copy-sequence-abc-success" data-url="../circuit-tracer/index.html?slug=copy-sequence-abc-success&amp;pruningThreshold=0.8">A B C. A B</option>
+            <option value="france-capital-success" data-url="../circuit-tracer/index.html?slug=france-capital-success&amp;pruningThreshold=0.8">The capital of France is</option>
+            <option value="japan-capital-success" data-url="../circuit-tracer/index.html?slug=japan-capital-success&amp;pruningThreshold=0.8">The capital of Japan is</option>
+            <option value="texas-capital-success" data-url="../circuit-tracer/index.html?slug=texas-capital-success&amp;pruningThreshold=0.8">Dallas is in Texas. The capital of Texas is</option>
+            <option value="arithmetic-reasoning-remaining" data-url="../circuit-tracer/index.html?slug=arithmetic-reasoning-remaining&amp;pruningThreshold=0.8&amp;clickedId=27_2149_11">Tom had five candies and gave two away. Tom has</option>
+            <option value="arithmetic-reasoning-three" data-url="../circuit-tracer/index.html?slug=arithmetic-reasoning-three&amp;pruningThreshold=0.8">John has two apples and buys one more. John has</option>
+            <option value="nested-location-key" data-url="../circuit-tracer/index.html?slug=nested-location-key&amp;pruningThreshold=0.8">The key is in the box. The box is in the drawer. The key is in the</option>
           </select>
         </div>
-        <a class="graph-open-link" id="figure5OpenLink" href="http://localhost:8041/?slug=copy-sequence-red-blue-success&amp;pruningThreshold=0.8&amp;clickedId=27_4433_6" target="_blank" rel="noopener">新窗口打开当前 graph ↗</a>
       </div>
-      <article class="original-graph-card" id="figure5GraphCard" style="--graph-color:#22c55e">
-        <div class="original-graph-header">
-          <span class="graph-case-tag" id="figure5GraphTag">Good attribution graph</span>
-          <h4 id="figure5GraphTitle"><code>copy_sequence_red_blue</code>：copying / induction 成功案例</h4>
-          <p id="figure5GraphPrompt"><code>red blue green. red blue</code> → <code> green</code>。</p>
-        </div>
-        <iframe class="original-graph-frame" id="figure5GraphFrame" src="http://localhost:8041/?slug=copy-sequence-red-blue-success&amp;pruningThreshold=0.8&amp;clickedId=27_4433_6" loading="lazy" title="Original circuit-tracer attribution graph: copy_sequence_red_blue"></iframe>
-        <p class="server-note">若 iframe 未加载，直接打开 <a id="figure5FallbackLink" href="http://localhost:8041/?slug=copy-sequence-red-blue-success&amp;pruningThreshold=0.8&amp;clickedId=27_4433_6" target="_blank" rel="noopener">good case graph</a>。</p>
+      <article class="original-graph-card" id="figure5GraphCard">
+        <iframe class="original-graph-frame" id="figure5GraphFrame" src="../circuit-tracer/index.html?slug=copy-sequence-red-blue-success&amp;pruningThreshold=0.8&amp;clickedId=27_4433_6" loading="lazy" title="Attribution graph"></iframe>
       </article>
     </div>
   </div>
 </details>
+<script>
+  (function () {
+    var sel = document.getElementById('figure5GraphSelect');
+    var iframe = document.getElementById('figure5GraphFrame');
+    if (!sel || !iframe) return;
+    sel.addEventListener('change', function () {
+      var opt = sel.options[sel.selectedIndex];
+      iframe.src = opt.getAttribute('data-url');
+    });
+  })();
+</script>
 <h2>5. 结果解读：失败案例告诉我们什么</h2>
 <ul>
 <li><strong>算术是最清楚的失败边界。</strong> <code>arithmetic_reasoning_remaining</code> 的 Pearson 为 -0.057、top-random gap 为 0.004、Top-activation gap 为 -0.041；<code>arithmetic_reasoning_three</code> 的 Top-activation gap 也接近 0。这说明当前 graph 还不能稳定找到数量组合相关的关键 features。下一步应优先检查：算术机制是否分散在很多 features 里、单 feature 置零是否太局部、CLT feature 是否没有对齐算术变量。</li>
@@ -2015,15 +2003,17 @@
             }
 
             function populateSelect() {
-                select.innerHTML = "";
-                data[filter].forEach((item) => {
-                    const option = document.createElement("option");
-                    option.value = item.id;
-                    option.textContent = item.label;
-                    select.appendChild(option);
-                });
+                if (select) {
+                    select.innerHTML = "";
+                    data[filter].forEach((item) => {
+                        const option = document.createElement("option");
+                        option.value = item.id;
+                        option.textContent = item.label;
+                        select.appendChild(option);
+                    });
+                    select.value = data[filter][0].id;
+                }
                 activeCase = data[filter][0];
-                select.value = activeCase.id;
                 selectedPointIndex = null;
                 render();
             }
@@ -2165,11 +2155,13 @@
                 });
             });
 
-            select.addEventListener("change", () => {
-                activeCase = data[filter].find((item) => item.id === select.value) || data[filter][0];
-                selectedPointIndex = null;
-                render();
-            });
+            if (select) {
+                select.addEventListener("change", () => {
+                    activeCase = data[filter].find((item) => item.id === select.value) || data[filter][0];
+                    selectedPointIndex = null;
+                    render();
+                });
+            }
 
             populateSelect();
         })();
