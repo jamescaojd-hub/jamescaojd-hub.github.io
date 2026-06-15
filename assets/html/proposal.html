@@ -180,6 +180,8 @@
             justify-content: space-between;
             gap: 12px;
             margin-bottom: 14px;
+            max-width: 100%;
+            min-width: 0;
         }
 
         .case-filter,
@@ -188,6 +190,8 @@
             flex-wrap: wrap;
             align-items: center;
             gap: 8px;
+            min-width: 0;
+            max-width: 100%;
         }
 
         .case-filter button,
@@ -200,6 +204,12 @@
             font: inherit;
             font-size: 0.9em;
             cursor: pointer;
+            max-width: 100%;
+            min-width: 0;
+            box-sizing: border-box;
+            text-overflow: ellipsis;
+            overflow: hidden;
+            white-space: nowrap;
         }
 
         .case-filter button.active {
@@ -966,6 +976,12 @@
   <summary><em>图 4. 交互式成功与失败 scatter：可切换多个 good / bad case，点击点查看 feature 细节。</em></summary>
   <div class="figure-body">
     <div class="interactive-scatter" id="figure4InteractiveScatter">
+      <div class="scatter-toolbar">
+        <div class="case-picker">
+          <label for="figure4CaseSelect">Prompt</label>
+          <select id="figure4CaseSelect" aria-label="选择要查看的 case"></select>
+        </div>
+      </div>
       <div class="scatter-summary-card" id="figure4Summary"></div>
       <div class="scatter-shell">
         <svg id="figure4ScatterSvg" viewBox="0 0 760 460" role="img" aria-label="score-vs-effect interactive scatter"></svg>
@@ -982,7 +998,14 @@
     </div>
   </div>
 </details>
-<iframe class="original-graph-frame" src="../circuit-tracer/index.html?slug=copy-sequence-red-blue-success&amp;pruningThreshold=0.8&amp;clickedId=27_4433_6" loading="lazy" title="Attribution graph"></iframe>
+<details class="figure-details" open>
+  <summary><em>图 5. 原始交互式 attribution graph：嵌入 circuit-tracer 官方 frontend 的本站静态托管版，可在 iframe 内切换 prompt、调整 pruning 阈值、点击节点查看 feature 细节。</em></summary>
+  <div class="figure-body">
+    <article class="original-graph-card">
+      <iframe class="original-graph-frame" src="../circuit-tracer/index.html?slug=copy-sequence-red-blue-success&amp;pruningThreshold=0.8&amp;clickedId=27_4433_6" loading="lazy" title="Attribution graph"></iframe>
+    </article>
+  </div>
+</details>
 <h2>5. 结果解读：失败案例告诉我们什么</h2>
 <ul>
 <li><strong>算术是最清楚的失败边界。</strong> <code>arithmetic_reasoning_remaining</code> 的 Pearson 为 -0.057、top-random gap 为 0.004、Top-activation gap 为 -0.041；<code>arithmetic_reasoning_three</code> 的 Top-activation gap 也接近 0。这说明当前 graph 还不能稳定找到数量组合相关的关键 features。下一步应优先检查：算术机制是否分散在很多 features 里、单 feature 置零是否太局部、CLT feature 是否没有对齐算术变量。</li>
@@ -1968,17 +1991,18 @@
             }
 
             function populateSelect() {
+                const allCases = [].concat(data.good || [], data.bad || []);
                 if (select) {
                     select.innerHTML = "";
-                    data[filter].forEach((item) => {
+                    allCases.forEach((item) => {
                         const option = document.createElement("option");
                         option.value = item.id;
-                        option.textContent = item.label;
+                        option.textContent = item.prompt || item.label;
                         select.appendChild(option);
                     });
-                    select.value = data[filter][0].id;
+                    select.value = allCases[0].id;
                 }
-                activeCase = data[filter][0];
+                activeCase = allCases[0];
                 selectedPointIndex = null;
                 render();
             }
@@ -2122,7 +2146,8 @@
 
             if (select) {
                 select.addEventListener("change", () => {
-                    activeCase = data[filter].find((item) => item.id === select.value) || data[filter][0];
+                    const allCases = [].concat(data.good || [], data.bad || []);
+                    activeCase = allCases.find((item) => item.id === select.value) || allCases[0];
                     selectedPointIndex = null;
                     render();
                 });
