@@ -679,9 +679,14 @@
 <td><code>The key is in the box. The box is in the drawer. The key is in the</code> →  <code>drawer</code></td>
 <td>看 graph 在多步关系、空间关系、三段论等任务上是否还可靠。</td>
 </tr>
+<tr>
+<td>Complex stress test</td>
+<td><code>arithmetic_fraction_logic</code>、<code>kinship_three_hop</code>、<code>conditional_override_late</code>、<code>reverse_sequence_copy</code> 等 20 个 stress cases</td>
+<td>在 40-case MVP 之外追加 20 个更强的 case，分布在分布式算术、组合推理、attention routing 与否定/约束四个子族；专门用来检查 graph 在长链路、对抗性 routing 和需要忽略干扰信息时是否仍然可靠。</td>
+</tr>
 </tbody>
 </table></div>
-<p align="center"><em>表 2. 任务族：40-case MVP 覆盖 factual recall、copying / induction、simple reasoning 和 complex reasoning 四类行为。</em></p>
+<p align="center"><em>表 2. 任务族：40-case MVP 覆盖 factual recall、copying / induction、simple reasoning 和 complex reasoning 四类行为；Complex stress test 作为第五类追加 20 cases，专门压测分布式算术、组合推理、attention routing 与否定/约束。</em></p>
 <h3>3.3 评估指标</h3>
 <div class="table-wrap"><table>
 <thead>

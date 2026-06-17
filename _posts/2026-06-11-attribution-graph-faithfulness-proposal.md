@@ -5,14 +5,14 @@ date: 2026-06-11 10:00:00
 description: "A research proposal on evaluating attribution graph faithfulness with causal intervention experiments."
 tags: [interpretability, attribution-graphs, circuit-tracing, llm]
 categories: [machine-learning-systems]
-external_url: /assets/html/proposal.html
+external_url: /assets/html/attribution-graph-faithfulness-proposal.html
 ---
 
 下面嵌入的是完整的 proposal 文档，用于评估 attribution graph 的 faithfulness。如果 iframe 无法加载，可以
-<a href="{{ '/assets/html/proposal.html' | relative_url }}" target="_blank" rel="noopener">在新标签页打开</a>。
+<a href="{{ '/assets/html/attribution-graph-faithfulness-proposal.html' | relative_url }}" target="_blank" rel="noopener">在新标签页打开</a>。
 
 <iframe
-  src="{{ '/assets/html/proposal.html' | relative_url }}"
+  src="{{ '/assets/html/attribution-graph-faithfulness-proposal.html' | relative_url }}"
   frameborder="0"
   scrolling="auto"
   width="100%"
