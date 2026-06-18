@@ -590,7 +590,7 @@
         <h1>Attribution Graph 到底准不准：用干预实验检查</h1>
 <h2>1. 执行摘要</h2>
 <p>Attribution graph 不能只看起来合理，还要经得起实验检验。它说某个 feature 很重要，我们就把这个 feature 临时关掉；如果模型对目标答案的信心真的明显下降，说明 graph 的判断比较可信。反过来，如果关掉后几乎没变化，说明这张 graph 可能只是“画得像解释”，但没有真正抓到模型在用的东西。</p>
-<p>我们做了一个轻量级验证流程：对每个 prompt 先生成 attribution graph，再按 attribution score 选出一批 feature，逐个把它们置零，最后看 target token 的 logit 掉了多少。当前主实验已跑完 40 个 case，覆盖 factual recall、copying / induction、simple reasoning 和 complex reasoning 四类任务，每类 10 个 case；此外又参考 <code>attn-tracer/scripts/run_complex_cases.py</code> 追加跑完 20 个更强的 complex / attention / negation stress cases。</p>
+<p>我们做了一个轻量级验证流程：对每个 prompt 先生成 attribution graph，再按 attribution score 选出一批 feature，逐个把它们置零，最后看 target token 的 logit 掉了多少。</p>
 <p>目前最有价值的发现不是“graph 永远正确”，而是它在哪些地方会出错：有些高分 feature 关掉后影响不大；有些 random feature 反而也很重要；复杂推理可能不是靠单个 feature 完成，而是分散在一组 features 里。把这些失败情况整理清楚，可以反过来指导下一步怎么改进 circuit tracing 和 attention-aware attribution。</p>
 <h2>2. 研究动机：解释不能只靠看图</h2>
 <blockquote>
