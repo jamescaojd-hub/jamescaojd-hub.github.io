@@ -6,7 +6,7 @@ cv:
   location: San Jose, USA
   website: https://jamescaojd-hub.github.io
   image: ""
-  summary: Machine Learning Engineer focused on ranking, recommendation, and applied AI systems, with experience connecting model design, production infrastructure, and measurable product impact.
+  summary: Machine Learning Engineer focused on ranking and recommendation models, LLM/VLM-based applied AI systems, and production ML infrastructure.
 
   social_networks:
     - network: GitHub
@@ -34,15 +34,17 @@ cv:
 
     Experience:
       - company: TikTok
-        position: Machine Learning Engineer
+        position: Machine Learning Engineer II
         location: San Jose, USA
         start_date: 2025-01
         end_date: Present
         highlights:
-          - Led migration of core push systems to a unified C++ scheduling framework, decoupling business logic from global decision-making and driving meaningful user growth.
-          - Owned end-to-end push modeling pipeline, including feature engineering, sample/label construction, model design, and online integration with ranking and frequency control.
-          - Built an end-to-end generative recommendation pipeline and evaluation benchmark to improve cold-start efficiency, measure generation diversity, better infer user interests, and drive meaningful business impact.
-          - Leveraged LLMs and VLMs to construct semantic IDs, optimize vLLM-based inference, and introduce cross-domain and cross-modal modeling for generating user-interest candidate categories.
+          - Promoted from MLE I to MLE II within 12 months.
+          - Owned the end-to-end large-scale push ranking system, spanning Hive/SQL data pipelines, feature engineering, sample and label construction, deep ranking model design, offline evaluation, and online serving and experimentation.
+          - Redesigned the video push ranking model from single-objective CTR prediction to multi-task learning with Shared-Bottom and Multi-Tower architectures, jointly optimizing Click, Like, and Finish objectives to mitigate clickbait and improve DAU among mid-low active users by +0.22%.
+          - Designed E-Commerce push candidate retrieval, ranking models, and features, delivering +0.61% per-capita GMV and +0.34% paid active days.
+          - Built a unified multi-business MixRank framework in C++, designing multi-objective scoring functions to rank candidates across business scenarios and balance engagement and business-specific goals, delivering +0.18% DAU.
+          - Built a generative recommendation system using LLMs/VLMs, conditioning on user interest profiles and historical content consumption to generate high-interest push candidates, improving LLM-as-Judge relevance by 140%.
 
       - company: Amazon
         position: Software Development Engineer Intern
@@ -50,7 +52,7 @@ cv:
         start_date: 2024-05
         end_date: 2024-08
         highlights:
-          - Built internal full-stack tools with React, Java, and TypeScript, improving service accessibility and operational efficiency.
+          - Built an internal payment investigation platform with React, Java, and TypeScript, reducing manual payment-record lookup workload by 60% and improving operational efficiency.
 
       - company: ZMO.AI
         position: Machine Learning Engineer Intern
@@ -58,7 +60,7 @@ cv:
         start_date: 2023-03
         end_date: 2023-05
         highlights:
-          - Developed an AI image editing pipeline in Python integrating ChatGPT, SAM, GroundingDINO, and Stable Diffusion.
+          - Built an image editing pipeline controlled through natural language, integrating ChatGPT, SAM, GroundingDINO, and Stable Diffusion.
           - Applied pruning to BLIP-2 and CLIP, reducing memory usage by 30% and runtime by 40%.
 
       - company: Huawei Technologies
@@ -71,22 +73,44 @@ cv:
 
     Research:
       - title: Weakly supervised prompt learning for low-resource medical image classification
-        role: Co-author
+        role: Co-First Author
         publisher: Pattern Recognition
         releaseDate: 2024-01
         highlights:
-          - Leveraged transferable representations from large-scale pre-trained vision-language models to address low-resource medical image classification for clinical decision support.
-          - Improved zero-shot and few-shot classification performance via additional prompt-embedding structures.
+          - Developed MedPrompt, a weakly supervised prompt learning framework that combines vision-language pretraining with automatic prompt generation for low-resource medical image classification.
+          - Outperformed existing prompt learning and transfer learning methods across multiple medical imaging datasets, achieving up to 10.4% improvement in few-shot classification.
 
     Skills:
-      - name: Skills
+      - name: Languages
         icon: fa-solid fa-code
         keywords:
           - Python
           - C++
+          - Java
           - SQL
+          - TypeScript
+          - Bash
+
+      - name: Machine Learning Frameworks
+        icon: fa-solid fa-brain
+        keywords:
           - PyTorch
           - TensorFlow
-          - Deep Learning
-          - Machine Learning
-          - Recommendation System
+
+      - name: Machine Learning
+        icon: fa-solid fa-chart-line
+        keywords:
+          - Recommendation Systems
+          - LLM
+          - VLM
+          - Diffusion Model
+          - Multi-Task Learning
+
+      - name: Tools
+        icon: fa-solid fa-screwdriver-wrench
+        keywords:
+          - Git
+          - Linux
+          - Docker
+          - vLLM
+          - Spark
